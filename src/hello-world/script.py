@@ -2,7 +2,7 @@ import panel as pn
 pn.extension(sizing_mode="stretch_width", template="fast")
 pn.state.template.param.update(
     site="Panel Dashboards",
-    title="Hello World",
+    title="Crypto stock dashboard",
     favicon="https://raw.githubusercontent.com/firobeid/firobeid.github.io/main/docs/compose-plots/Resources/favicon.ico",
 )
 pn.panel(
