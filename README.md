@@ -1,24 +1,26 @@
-# Crypto-Stock-dashboard
-Project 1 for Fintech bootcamp through UC Berkeley. 
+# Project title: Crypto/Stock Dashboard
+**Project 1 for Fintech bootcamp through UC Berkeley.**
 
+## Team Members
+Alex Valenzuela, Robin Thorsen, Kaio Farkouh, Zach Eras
+
+# Project Description
 We are creating a dashboard for analyzing trading strategies with 5 different strategies, on the top 5 different Crypto Tokens excluding stablecoins. We will be running the same strategies on SPY and NASDAQ 100 to show comparison to trad-fi market. We also will run analysis to use results on assets to use results for running Monte carlo simulations on the trading strategies.Then we will be getting the Sharpe ratio/beta/cov along with SUM stats, and will be promting the user with how they want to get their results, ex. email, csv file, etc. Another way to think of this dashboard, is as an automatic trading backetesting application.
 
+# Reserch Question to Answer
+What are the daily limit for APIs? 
+Wow many channels are we limited to?
+Wow many concurrent channels are allowed?
+What is the change of price over a period of time?
 
-## Execution Strategy
+# Datasets to be Used
+Date, open, High, Low, Volume, Change in Price
+
+# Rough Breakdown of Tasks
 
   1 - Get Data - Robin, Alex
      - What API or APIs are we using?
-          Alpaca
-          CoinAPI
-          Finnhub
-     - What types of data should we look for?  
-          Date
-          Price 
-          Open 
-          High 
-          Low 
-          Volume 
-          Change in price 
+     - What types of data should we look for?
      - What time frames are we looking for?
   
   2- clean data - Kaio, Zach
