@@ -35,11 +35,12 @@ We are creating a dashboard for analyzing trading strategies with 5 different st
     - any other plots we think are important
     
     
-   8- export data -how user wants? - Alex, Robin
+   7- export data -how user wants? - Alex, Robin
     - sending an email?
     - Create a csv file with all of the simulations that were run?
     - Should we showcase the results on the dashboard, or just send an email back to them?
     - Create an option for user to pick - email, csv, pdf, etc??
     
-   9- bug fixing :D - All hands on Deck!
+   8 -bug fixing :D - All hands on Deck!
+
 
