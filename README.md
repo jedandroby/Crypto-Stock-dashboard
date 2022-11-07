@@ -12,15 +12,40 @@ download results?? excel, csv, database?
 Using panels for the dashboard. 
 
 
-steps to start
-    1- get data
-    2- clean data 
-    3- analyze data
-    4- strategies on data 
-    5- metrics from strategies
-    6- running monte carlo simulations
-    7- visualize data 
-    8- export data -how user wants? 
-    9- bug fixing :D 
-
+  1 - Get Data - Robin, Alex
+     - What API or APIs are we using?
+     - What types of data should we look for?
+     - What time frames are we looking for?
+  
+  2- clean data - Kaio, Zach
+     - What metrics are important to keep and which ones arent?
+     - We should map out the trading strategies we are using this way understand how we best want to clean the data.
+   
+   3- analyze data Zach, Robin
+    - Identifying trends, analyzing patterns, and sorting the correct data in the right dataframes
+    - We will get a better sense of how to analyze the data dependent upon the trading strategies we are using
+   
+   4- strategies/simulations on data - Zach, Robin, Alex, Kaio
+    - Monte Carlo Simulation - 
+    - Finding the Sharpe Ratio and beta
+    - Covariance from crypto assets to stock market
+    - Sumarry statistics, 95% range
+    - implement the trading strategy conditions 
+    
+   5- metrics from strategies - Alex, Kaio 
+    
+   6 visualize data - Zach, Kaio
+    - plot the monte carlo simulation, 95% ranges
+    - plot covariance
+    - plot share ratio and beta
+    - any other plots we think are important
+    
+    
+   8- export data -how user wants? - Alex, Robin
+    - sending an email?
+    - Create a csv file with all of the simulations that were run?
+    - Should we showcase the results on the dashboard, or just send an email back to them?
+    - Create an option for user to pick - email, csv, pdf, etc??
+    
+   9 -bug fixing :D - All hands on Deck!
 
