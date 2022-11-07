@@ -15,7 +15,17 @@ Using panels for the dashboard.
 
   1 - Get Data - Robin, Alex
      - What API or APIs are we using?
-     - What types of data should we look for?
+          Alpaca
+          CoinAPI
+          Finnhub
+     - What types of data should we look for?  
+          Date
+          Price 
+          Open 
+          High 
+          Low 
+          Volume 
+          Change in price 
      - What time frames are we looking for?
   
   2- clean data - Kaio, Zach
