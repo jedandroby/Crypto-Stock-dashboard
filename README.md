@@ -11,6 +11,7 @@ download results?? excel, csv, database?
 
 Using panels for the dashboard. 
 
+## Execution Strategy
 
   1 - Get Data - Robin, Alex
      - What API or APIs are we using?
