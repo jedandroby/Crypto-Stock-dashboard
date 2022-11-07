@@ -1,0 +1,2 @@
+11/6/22
+Cleaned up the github repo, created workflow updates directory and dashboard testing directory. Cleaned up the readme file after alex, zach, and kaio worked on it. Added some extra questions and points in the breakdown of tasks. Did research into various API'S trying to find limitations and differences between them so we can find the API that would work best for our needs. Looked into github to try and make it so that everyone can create pull requests and merge them to the mainchain. (Still need to figure this out. looks like it should be possible?) 
