@@ -1,0 +1,7 @@
+## 11/8/22
+
+Went through the code, strategy, and how we are going to start get started working together. Came up with a solid action plan.
+
+11/9/22
+
+We all went through Einblink and were able to collaborate with each others code. We had the prices for SPY and BTC Imported, and I went ahead and created a table for the volume, closing prices, high prices, and low prices. Also made a HVPLOT for each of these. We also collaborated together on putting the code to retrieve the data into a function to make it much easier to read and deploy. We took a good amount of time messing around with Github and getting our bearings there with the different branches. We were on the zoom call for a bit over 3 hours total, all collaborating together and working as a collective to generate the code! 
