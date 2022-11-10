@@ -7,3 +7,13 @@ them to the mainchain. (Still need to figure this out. looks like it should be p
 11/8/22
 Looked into ccxt package and getting data from it. considering using it to get easy current data.
 Created 'dev' branch and pushed to github, edited github rules to edit 'main' chain.
+
+11/9/22
+Created testing notebook for messing around with getting data in from ccxt. Successfully got BTC data in from binanceus,
+saved it in a dataframe and cleaned the data enough to make it readable. Created robin branch and helped alex navigate
+github and pull my changes and get his branch setup. 
+Worked with zach,kaio, and alex for roughly 3 hours. Tried using einblick for working on code together, wrote functions for getting BTC data in from ccxt
+helped review functions for alex and kaio and helped zach a little troubleshoot SQL for our database. Went through github branches
+and making sure everyone was understanding a workflow for using github and pushing/pulling. 
+github and pull my changes and get his branch setup. 
+
