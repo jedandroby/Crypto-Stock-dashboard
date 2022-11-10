@@ -10,4 +10,4 @@ to the group to be added to the project proposal readme file.  Kaio and I also c
 
 11/09/2022 (3 hours) - I did the coding for the Alpaca API for QQQ.   I collaborated with the team on einblick.  Robin did some quality control and Zach merged the Alpaca API for QQQ into the main jupyter notebook.  
 
-11/10/2022
+
