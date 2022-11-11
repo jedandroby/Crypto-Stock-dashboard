@@ -17,3 +17,4 @@ helped review functions for alex and kaio and helped zach a little troubleshoot 
 and making sure everyone was understanding a workflow for using github and pushing/pulling. 
 github and pull my changes and get his branch setup. 
 
+
