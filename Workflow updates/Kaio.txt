@@ -1,0 +1,5 @@
+11/07 - Got together with the group to discuss possible idea about the project and how we would move forward with it. 
+11/09 -  Looked into the ALPACA keys and got data on SPY data. Cleaned, analyzed, and added to Robin's work
+11/10 - Got together with the group for a couple of hours where we created different folders that contains our code. I was responsible to create a file with
+information about the SPY, an create a SQL table for low,high,close, and volume. Once I did that I was able to put all the initial part of getting the data
+into a function so that we can make our code cleaner in a different file when we just import.

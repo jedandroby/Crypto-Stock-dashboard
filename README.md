@@ -1,13 +1,23 @@
+
 # Project Title: Crypto/Stock Dashboard
 **Project 1 for Fintech bootcamp through UC Berkeley.**
 
 ## Team Members
 Alex Valenzuela, Robin Thorsen, Kaio Farkouh, Zach Eras
 
+
+
+# Datasets to be Used
+Date, open, High, Low, Volume, Change in Price
+
+# Rough Breakdown of Tasks
+
+
 ---
 
 # Project Description
 We are creating a dashboard for analyzing trading strategies with 5 different strategies, on the top 5 different Crypto Tokens excluding stablecoins. We will be running the same strategies on SPY and NASDAQ 100 to show comparison to trad-fi market. We will run analysis on the assets to use results for running Monte carlo simulations on the trading strategies. Then we will be getting the Sharpe ratio/beta/cov along with SUM stats, and will be prompting the user with how they want to save their results, ex. email, csv file, etc. Another way to think of this dashboard, is as an automatic trading backtesting application.
+
 
 ---
 
