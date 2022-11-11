@@ -5,3 +5,7 @@ Went through the code, strategy, and how we are going to start get started worki
 11/9/22
 
 We all went through Einblink and were able to collaborate with each others code. We had the prices for SPY and BTC Imported, and I went ahead and created a table for the volume, closing prices, high prices, and low prices. Also made a HVPLOT for each of these. We also collaborated together on putting the code to retrieve the data into a function to make it much easier to read and deploy. We took a good amount of time messing around with Github and getting our bearings there with the different branches. We were on the zoom call for a bit over 3 hours total, all collaborating together and working as a collective to generate the code! 
+
+11/10/22
+
+Before class, I spent a few hours soring all of the types of data we had from the sql tables I made, and then starting to solve for different analysis tools, such as the sharpe ratio, std, beta, etc. During class, we broke out into breakout rooms, and during that time, I finished up making the tables, and also made different functions. Such as getting the sharpe ratios for BTC and SPY, summary statistics, charting the rolling metrics, and I tried to get the covariance for a longgg time, but finally Kaio helped out because we had to merge the dataframes together first to get the same dates. 
