@@ -3,3 +3,4 @@
 11/10 - Got together with the group for a couple of hours where we created different folders that contains our code. I was responsible to create a file with
 information about the SPY, an create a SQL table for low,high,close, and volume. Once I did that I was able to put all the initial part of getting the data
 into a function so that we can make our code cleaner in a different file when we just import.
+11/11 - Cleaned more data and concat the dataframes so that they could match the dates and so that we were able to run somme coding that we were having problems due to the difference of dates
