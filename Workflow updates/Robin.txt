@@ -17,4 +17,11 @@ helped review functions for alex and kaio and helped zach a little troubleshoot 
 and making sure everyone was understanding a workflow for using github and pushing/pulling. 
 github and pull my changes and get his branch setup. 
 
+11/10/22 
+did work during class with zach, alex and kaio figuring out our next steps and continuing to work on github workflow and fixing any merge issues.
+starting research into technical indicators and monte carlo simulations. 
+worked on creating a function for the storing of the analyzed data into a sql database and make functions out of the queries
 
+11/12/22
+Spent a couple hours in the morning adjusting the crypto function to be user freindly and flexible so the user can select exchange and token to be analyzed.
+Still need to write the try and excepts so if a USD pair is not found, it goes for USDC, or USDT, or other throws and error telling user to try a different exchange or ticker. 
