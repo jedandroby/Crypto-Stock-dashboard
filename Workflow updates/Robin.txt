@@ -25,3 +25,8 @@ worked on creating a function for the storing of the analyzed data into a sql da
 11/12/22
 Spent a couple hours in the morning adjusting the crypto function to be user freindly and flexible so the user can select exchange and token to be analyzed.
 Still need to write the try and excepts so if a USD pair is not found, it goes for USDC, or USDT, or other throws and error telling user to try a different exchange or ticker. 
+
+11/13/22
+spent an hour in the morning making the SQL functions to connect to the engine and copy a dataframe to the sqlite database with a table name parameter, still need to write code to 
+incorporate questionary and make user enter table name if they want to save it. Also wrote the function for copying a dataframe from the database based on a query.
+
