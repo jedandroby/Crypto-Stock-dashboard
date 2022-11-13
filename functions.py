@@ -9,6 +9,8 @@ import sqlalchemy as sql
 import sys
 import questionary
 from MCForecastTools import MCSimulation
+from warnings import filterwarnings
+filterwarnings("ignore")
 
 
 def get_data_crypto():
@@ -21,7 +23,7 @@ def get_data_crypto():
     'hitbtc','huobi','okex','poloniex','yobit','zaif']
     fe=[s for s in exchanges if any(exchanges in s for exchanges in qe)]
     
-    exchange_id = questionary.select("Which exchange do you wish to pull from?",                   choices=fe).ask()
+    exchange_id = questionary.select("Which exchange do you wish to pull from?",choices=fe).ask()
     exchange_class = getattr(ccxt, exchange_id)
     exchange = exchange_class({
     'timeout':30000,
@@ -133,3 +135,40 @@ def get_data_spy():
 
     df_spy = spy_price.drop(columns=["trade_count","vwap","symbol"])
     return df_spy
+
+# connect to database function
+def connect():
+    '''Connect to the sqlite database server''' 
+    conn = None
+    try:
+        # connect to the SQLite server
+        print('Connecting to the SQLite database...')
+        conn = sql.create_engine('sqlite:///')
+    except :
+        print("Connection not successful!")
+        sys.exit(1)
+    print("Connection Successful!")
+    return conn
+#copy data to database
+def copy_to_db(conn, df, table):
+    """
+    save the dataframe in memory as a sqlite database with name 'table' 
+    conn is the connection engine used. use connect function to get 
+    """    
+    try:
+        df.to_sql('%s'%table, con=conn, index=True,if_exists='replace')
+        print(f'Saving dataframe as a table called {table} in sqlite database')
+    except :
+        print("Error")
+    print("Done!")
+    return conn.table_names()
+#copy a dataframe from database based on a query
+def open_as_df(query,conn):
+    '''pass query to get dataframe: select * from spy_db_OHLCV fx. '''
+    try:
+        df = pd.read_sql_query(sql = query,con = conn, index_col= ['timestamp'])
+        print('Accessing SQLite database based on query')
+    except :
+        print('Error')
+        sys.exit(1)
+    return df
