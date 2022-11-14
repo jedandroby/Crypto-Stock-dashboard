@@ -36,7 +36,14 @@ def get_data_crypto():
     # have user select ticker they want to analyze, and convert it to upper
     ticker = str(questionary.text('Please type the ticker of the token you are trying to analyze').ask())
     ticker=ticker.upper()
-    ohlc = exchange.fetch_ohlcv('%s/USD' % ticker, timeframe='1h', limit=691)
+    try:
+        ohlc = exchange.fetch_ohlcv('%s/USD' % ticker, timeframe='1h', limit=691)
+    except :
+        ohlc = exchange.fetch_ohlcv('%s/USDC' % ticker, timeframe='1h', limit=691)
+    except ccxt.base.errors.BadSymbol:
+        ohlc = exchange.fetch_ohlcv('%s/USDT' % ticker, timeframe='1h', limit=691)
+    else :
+        print('Sorry please pick another exchange/token to analyze, could not find a USD/USDC/USDT pair.')    
     # Creating a dataframe
     df = pd.DataFrame(ohlc,columns=['timestamp','Open','High','Low','Close','Volume'])
     # Check for null values
