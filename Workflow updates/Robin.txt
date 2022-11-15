@@ -29,4 +29,8 @@ Still need to write the try and excepts so if a USD pair is not found, it goes f
 11/13/22
 spent an hour in the morning making the SQL functions to connect to the engine and copy a dataframe to the sqlite database with a table name parameter, still need to write code to 
 incorporate questionary and make user enter table name if they want to save it. Also wrote the function for copying a dataframe from the database based on a query.
+spent a couple hours in the evening working with zach, alex and kaio, regrouping on our project and planning next steps. We are thinking of having zach
+work on the functions for calculations, kaio and alex work on getting the dashboard working and doing the smaller details, and ill work on the try/except for the crypto
+data. This was giving me issues and i need to check with firas come monday. Ill also work on getting a candle stick chart to display the data on the dashboard that we bring in
+for the monte carlo simulations. 
 
