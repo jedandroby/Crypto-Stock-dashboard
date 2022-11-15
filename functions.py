@@ -39,25 +39,31 @@ def get_data_crypto():
     try:
         ohlc = exchange.fetch_ohlcv('%s/USD' % ticker, timeframe='1h', limit=691)
     except :
-        ohlc = exchange.fetch_ohlcv('%s/USDC' % ticker, timeframe='1h', limit=691)
-    except ccxt.base.errors.BadSymbol:
-        ohlc = exchange.fetch_ohlcv('%s/USDT' % ticker, timeframe='1h', limit=691)
-    else :
-        print('Sorry please pick another exchange/token to analyze, could not find a USD/USDC/USDT pair.')    
+        try:
+            ohlc = exchange.fetch_ohlcv('%s/USDC' % ticker, timeframe='1h', limit=691)
+        except:    
+            try:
+                ohlc = exchange.fetch_ohlcv('%s/USDT' % ticker, timeframe='1h', limit=691)
+            except:
+                print('Sorry please pick another exchange/token to analyze, could not find a USD/USDC/USDT pair.')
+                ohlc = None
+                pass
     # Creating a dataframe
-    df = pd.DataFrame(ohlc,columns=['timestamp','Open','High','Low','Close','Volume'])
-    # Check for null values
-    df.isnull().sum().dropna()
+    if (isinstance(ohlc,pd.DataFrame) ==True):
+        if len(ohlc) > 1:
+            df = pd.DataFrame(ohlc,columns=['timestamp','Open','High','Low','Close','Volume'])
+            # Check for null values
+            df.isnull().sum().dropna()
+            # taken unix to datetime from firas pandas extra demo code
+            def unix_to_date(unix):
+                return pd.to_datetime(unix, unit = "ms").tz_localize('UTC').tz_convert('US/Pacific')
+            # Clean unix timestamp to a human readable timestamp. 
+            df['timestamp']= df['timestamp'].apply(unix_to_date)
+            # set index as timestamp
+            df = df.set_index(['timestamp'])
+            return df
+    return None
 
-    # taken unix to datetime from firas pandas extra demo code
-    def unix_to_date(unix):
-        return pd.to_datetime(unix, unit = "ms").tz_localize('UTC').tz_convert('US/Pacific')
-
-    # Clean unix timestamp to a human readable timestamp. 
-    df['timestamp']= df['timestamp'].apply(unix_to_date)
-    # set index as timestamp
-    df = df.set_index(['timestamp'])
-    return df
     
 def get_data_qqq():
     '''
