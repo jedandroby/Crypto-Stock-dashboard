@@ -63,125 +63,125 @@ def get_data_crypto():
             df = df.set_index(['timestamp'])
             return df
     return None
-
+    print(df)
     
-def get_data_qqq():
-    '''
-    Function used for getting data from Alpaca for the QQQ Stock ticker and save the data as a dataframe.
-    '''
-    alpaca = tradeapi.REST(
-        ALPACA_API_KEY,
-        ALPACA_SECRET_KEY,
-        api_version="v2")
+# def get_data_qqq():
+#     '''
+#     Function used for getting data from Alpaca for the QQQ Stock ticker and save the data as a dataframe.
+#     '''
+#     alpaca = tradeapi.REST(
+#         ALPACA_API_KEY,
+#         ALPACA_SECRET_KEY,
+#         api_version="v2")
 
-    # Format current date as ISO format 
-    today = pd.Timestamp.now(tz="US/Pacific")
-    a_year_ago = pd.Timestamp(today - pd.Timedelta(days=365)).isoformat()
-    end_date = pd.Timestamp(today - pd.Timedelta(days=1)).isoformat()
+#     # Format current date as ISO format 
+#     today = pd.Timestamp.now(tz="US/Pacific")
+#     a_year_ago = pd.Timestamp(today - pd.Timedelta(days=365)).isoformat()
+#     end_date = pd.Timestamp(today - pd.Timedelta(days=1)).isoformat()
 
-    # Set the tickers
-    tickers = ["QQQ"]
+#     # Set the tickers
+#     tickers = ["QQQ"]
 
 
-    # Set timeframe to one day ('1Day') for the Alpaca API
-    timeframe = "1D"
+#     # Set timeframe to one day ('1Day') for the Alpaca API
+#     timeframe = "1D"
 
-    # Get current closing prices for NDX
-    dqqq_price = alpaca.get_bars(
-            tickers,
-            timeframe,
-            start=a_year_ago,
-            end=end_date
-        ).df
+#     # Get current closing prices for NDX
+#     dqqq_price = alpaca.get_bars(
+#             tickers,
+#             timeframe,
+#             start=a_year_ago,
+#             end=end_date
+#         ).df
 
-    # Display sample data
-    # separate Ticker Data
-    QQQ = dqqq_price[dqqq_price['symbol']=='QQQ'].drop('symbol', axis=1)
+#     # Display sample data
+#     # separate Ticker Data
+#     QQQ = dqqq_price[dqqq_price['symbol']=='QQQ'].drop('symbol', axis=1)
      
-    # set the index as Timestamp
-    # dqqq_price = dqqq_price.set_index(['Timestamp'])
+#     # set the index as Timestamp
+#     # dqqq_price = dqqq_price.set_index(['Timestamp'])
 
-    # Concatenate the Ticker DataFrames
+#     # Concatenate the Ticker DataFrames
 
-    dqqq_price = pd.concat([QQQ],axis=1, keys=['QQQ'])
-    return dqqq_price
+#     dqqq_price = pd.concat([QQQ],axis=1, keys=['QQQ'])
+#     return dqqq_price
 
-def get_data_spy():
-     '''
-    Function used for getting data from Alpaca for the SPY Stock ticker and save the data as a dataframe.
-    '''
-    alpaca = tradeapi.REST(
-        ALPACA_API_KEY,
-        ALPACA_SECRET_KEY,
-        api_version="v2")
-    ALPACA_API_KEY = 'PK2BWJQC7W7Z3C87TKI6'
-    ALPACA_SECRET_KEY = 'qox7s7aZ70L9yAp8HS6Kz0JXngu6a20ikuD3EmCq'
+# def get_data_spy():
+#      '''
+#     Function used for getting data from Alpaca for the SPY Stock ticker and save the data as a dataframe.
+#     '''
+#     alpaca = tradeapi.REST(
+#         ALPACA_API_KEY,
+#         ALPACA_SECRET_KEY,
+#         api_version="v2")
+#     ALPACA_API_KEY = 'PK2BWJQC7W7Z3C87TKI6'
+#     ALPACA_SECRET_KEY = 'qox7s7aZ70L9yAp8HS6Kz0JXngu6a20ikuD3EmCq'
     
-    # # Set the variables for the Alpaca API and secret keys
-    # alpaca_api_key=os.getenv(ALPACA_API_KEY)
-    # # Create the Alpaca tradeapi.REST object
-    # alpaca_secret_key=os.getenv(ALPACA_SECRET_KEY)
+#     # # Set the variables for the Alpaca API and secret keys
+#     # alpaca_api_key=os.getenv(ALPACA_API_KEY)
+#     # # Create the Alpaca tradeapi.REST object
+#     # alpaca_secret_key=os.getenv(ALPACA_SECRET_KEY)
     
-    alpaca=tradeapi.REST(ALPACA_API_KEY,ALPACA_SECRET_KEY,api_version="v2")
+#     alpaca=tradeapi.REST(ALPACA_API_KEY,ALPACA_SECRET_KEY,api_version="v2")
 
-    #Setting the tickers
-    tickers = ['SPY']
+#     #Setting the tickers
+#     tickers = ['SPY']
 
-    #Setting the timeframe
-    timeframe='1Day'
+#     #Setting the timeframe
+#     timeframe='1Day'
 
-    #Formatting the date
-    today = pd.Timestamp.now(tz="US/Pacific")
-    a_year_ago = pd.Timestamp(today - pd.Timedelta(days=15000)).isoformat()
-    end_date = pd.Timestamp(today - pd.Timedelta(days=1)).isoformat()
+#     #Formatting the date
+#     today = pd.Timestamp.now(tz="US/Pacific")
+#     a_year_ago = pd.Timestamp(today - pd.Timedelta(days=15000)).isoformat()
+#     end_date = pd.Timestamp(today - pd.Timedelta(days=1)).isoformat()
 
-    #Getting the closing prices
-    spy_price = alpaca.get_bars(
-    tickers,
-    timeframe,
-    start=a_year_ago,
-    end=end_date
-    ).df
+#     #Getting the closing prices
+#     spy_price = alpaca.get_bars(
+#     tickers,
+#     timeframe,
+#     start=a_year_ago,
+#     end=end_date
+#     ).df
 
-    # Check for NaN Values
-    spy_price.isnull().dropna()
+#     # Check for NaN Values
+#     spy_price.isnull().dropna()
 
-    df_spy = spy_price.drop(columns=["trade_count","vwap","symbol"])
-    return df_spy
+#     df_spy = spy_price.drop(columns=["trade_count","vwap","symbol"])
+#     return df_spy
 
-# connect to database function
-def connect():
-    '''Connect to the sqlite database server''' 
-    conn = None
-    try:
-        # connect to the SQLite server
-        print('Connecting to the SQLite database...')
-        conn = sql.create_engine('sqlite:///')
-    except :
-        print("Connection not successful!")
-        sys.exit(1)
-    print("Connection Successful!")
-    return conn
-#copy data to database
-def copy_to_db(conn, df, table):
-    """
-    save the dataframe in memory as a sqlite database with name 'table' 
-    conn is the connection engine used. use connect function to get 
-    """    
-    try:
-        df.to_sql('%s'%table, con=conn, index=True,if_exists='replace')
-        print(f'Saving dataframe as a table called {table} in sqlite database')
-    except :
-        print("Error")
-    print("Done!")
-    return conn.table_names()
-#copy a dataframe from database based on a query
-def open_as_df(query,conn):
-    '''pass query to get dataframe: select * from spy_db_OHLCV fx. '''
-    try:
-        df = pd.read_sql_query(sql = query,con = conn, index_col= ['timestamp'])
-        print('Accessing SQLite database based on query')
-    except :
-        print('Error')
-        sys.exit(1)
-    return df
+# # connect to database function
+# def connect():
+#     '''Connect to the sqlite database server''' 
+#     conn = None
+#     try:
+#         # connect to the SQLite server
+#         print('Connecting to the SQLite database...')
+#         conn = sql.create_engine('sqlite:///')
+#     except :
+#         print("Connection not successful!")
+#         sys.exit(1)
+#     print("Connection Successful!")
+#     return conn
+# #copy data to database
+# def copy_to_db(conn, df, table):
+#     """
+#     save the dataframe in memory as a sqlite database with name 'table' 
+#     conn is the connection engine used. use connect function to get 
+#     """    
+#     try:
+#         df.to_sql('%s'%table, con=conn, index=True,if_exists='replace')
+#         print(f'Saving dataframe as a table called {table} in sqlite database')
+#     except :
+#         print("Error")
+#     print("Done!")
+#     return conn.table_names()
+# #copy a dataframe from database based on a query
+# def open_as_df(query,conn):
+#     '''pass query to get dataframe: select * from spy_db_OHLCV fx. '''
+#     try:
+#         df = pd.read_sql_query(sql = query,con = conn, index_col= ['timestamp'])
+#         print('Accessing SQLite database based on query')
+#     except :
+#         print('Error')
+#         sys.exit(1)
+#     return df
