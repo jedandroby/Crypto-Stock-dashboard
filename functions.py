@@ -11,7 +11,47 @@ import questionary
 from MCForecastTools import MCSimulation
 from warnings import filterwarnings
 filterwarnings("ignore")
-
+import streamlit as st
+from datetime import date
+import yfinance as yf
+from prophet import Prophet
+from prophet.plot import plot_plotly
+import plotly.graph_objects as go
+import yfinance as yf
+from prophet import Prophet
+from prophet.plot import plot_plotly
+import plotly.graph_objects as go
+import ccxt
+# jupyter lab --NotebookApp.iopub_data_rate_limit=1.0e10 - this command is required to run when opening jupyter labs or ccxt wont work in jupyter. or configure a config file.
+import pandas as pd
+import hvplot.pandas
+# from dotenv import load_dotenv
+import alpaca_trade_api as tradeapi
+import os
+import sqlalchemy as sql
+import sys
+import numpy as np
+from MCForecastTools import MCSimulation
+from warnings import filterwarnings
+# import pandas_ta as ta
+from scipy.stats import norm
+import math
+import matplotlib.pyplot as plt
+import questionary
+filterwarnings("ignore")
+import ccxt
+# jupyter lab --NotebookApp.iopub_data_rate_limit=1.0e10 - this command is required to run when opening jupyter labs or ccxt wont work in jupyter. or configure a config file.
+import pandas as pd
+import hvplot.pandas
+# from dotenv import load_dotenv
+import alpaca_trade_api as tradeapi
+import os
+import sqlalchemy as sql
+import sys
+import questionary
+from MCForecastTools import MCSimulation
+from warnings import filterwarnings
+filterwarnings("ignore")
 
 def get_data_crypto():
     '''
@@ -63,10 +103,8 @@ def get_data_crypto():
             df = df.set_index(['timestamp'])
             return df
     return None
-    print(df)
-    
-    
-    
+df = get_data_crypto()
+
 def analyze_data(d):
     d = d
     # # get the percent change for the coin and drop NaN values
@@ -101,7 +139,7 @@ def analyze_data(d):
     cum_returns_mean = cum_returns.mean()
     print(f' The average Cumulative Return is: % {cum_returns_mean: .2f}')
 
-analyze_data(d)
+analyze_data(df)
 
 
 
@@ -161,7 +199,7 @@ def monte_carlo_sim(d):
     #Now that we've created a single random walk above,
     #we can simulate this process over a large sample size to
     #get a better sense of the true expected distribution
-    number_of_trials = 300
+    number_of_trials = 3000
 
     #set up an additional array to collect all possible
     #closing prices in last day of window.
@@ -211,7 +249,7 @@ def monte_carlo_sim(d):
     plt.axvline(d['Close'][-1],color='g', linestyle='dashed',linewidth=2)
 
     plt.show()
-    
+
     #from here, we can check the mean of all ending prices
     #allowing us to arrive at the most probable ending point
     mean_end_price = round(np.mean(closing_prices),2)

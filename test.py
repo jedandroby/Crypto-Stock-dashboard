@@ -1,16 +1,13 @@
-import ccxt
-# jupyter lab --NotebookApp.iopub_data_rate_limit=1.0e10 - this command is required to run when opening jupyter labs or ccxt wont work in jupyter. or configure a config file.
-import pandas as pd
-import hvplot.pandas
-# from dotenv import load_dotenv
-import alpaca_trade_api as tradeapi
-import os
-import sqlalchemy as sql
-import sys
-import questionary
-from MCForecastTools import MCSimulation
-from warnings import filterwarnings
-filterwarnings("ignore")
+import streamlit as st
+from datetime import date
+import yfinance as yf
+from prophet import Prophet
+from prophet.plot import plot_plotly
+import plotly.graph_objects as go
+import yfinance as yf
+from prophet import Prophet
+from prophet.plot import plot_plotly
+import plotly.graph_objects as go
 import ccxt
 # jupyter lab --NotebookApp.iopub_data_rate_limit=1.0e10 - this command is required to run when opening jupyter labs or ccxt wont work in jupyter. or configure a config file.
 import pandas as pd
@@ -28,109 +25,113 @@ from scipy.stats import norm
 import math
 import matplotlib.pyplot as plt
 import questionary
+filterwarnings("ignore")
+import ccxt
+# jupyter lab --NotebookApp.iopub_data_rate_limit=1.0e10 - this command is required to run when opening jupyter labs or ccxt wont work in jupyter. or configure a config file.
+import pandas as pd
+import hvplot.pandas
+# from dotenv import load_dotenv
+import alpaca_trade_api as tradeapi
+import os
+import sqlalchemy as sql
+import sys
+import questionary
+from MCForecastTools import MCSimulation
+from warnings import filterwarnings
+filterwarnings("ignore")
+
+# from plotly import graph_objs as go
+# str
+
+START = "2010-01-01"
+TODAY = date.today().strftime("%Y-%m-%d")
+
+st.title("Coin Predictor")
+
+stocks = ("BTC-USD","ETH-USD","USDT-USD","USDC-USD","ADA-USD")
+selected_stocks = st.selectbox("Pick a coin for prediction",stocks)
+
+# n_years = st.slider("Years of Prediction:",1,15)
+# period = n_years * 365
 
 
-def get_data_crypto():
-    '''
-    Function used for pulling data from qualified crypto exchanged based on accurate user volume taken from the free ccxt package. User chooses what exchange to connect too, and then decides what ticker they want to find. Code will find a USD equivalent pair and return the dataframe.
-    '''
-    # getting list of qualified exchanges for user to choose to connect too.
-    exchanges = ccxt.exchanges
-    qe=['binance','bitfinex','bithumb','bitstamp','bittrex','coinbase','gemini','kraken',
-    'hitbtc','huobi','okex','poloniex','yobit','zaif']
-    fe=[s for s in exchanges if any(exchanges in s for exchanges in qe)]
-    exchange_id = questionary.select("Which exchange do you wish to pull from?",choices=fe).ask()
-    exchange_class = getattr(ccxt, exchange_id)
-    exchange = exchange_class({
-    'timeout':30000,
-    'enableRateLimit':True,
-    })
-    # exchange
-    # load market data
-    markets=exchange.load_markets()
-    # getting open high low close data for BTC from binance us, last 1000 hour candles.
-    # have user select ticker they want to analyze, and convert it to upper
-    ticker = str(questionary.text('Please type the ticker of the token you are trying to analyze').ask())
-    ticker=ticker.upper()
-    try:
-        ohlc = exchange.fetch_ohlcv('%s/USD' % ticker, timeframe='1h', limit=691)
-    except :
-        try:
-            ohlc = exchange.fetch_ohlcv('%s/USDC' % ticker, timeframe='1h', limit=691)
-        except:
-            try:
-                ohlc = exchange.fetch_ohlcv('%s/USDT' % ticker, timeframe='1h', limit=691)
-            except:
-                print('Sorry please pick another exchange/token to analyze, could not find a USD/USDC/USDT pair.')
-                ohlc = None
-                pass
-    # Creating a dataframe
-    # if (isinstance(ohlc,pd.DataFrame) ==True):
-    #     if len(ohlc) > 1:
-    df = pd.DataFrame(ohlc,columns=['timestamp','Open','High','Low','Close','Volume'])
-    # Check for null values
-    df.isnull().sum().dropna()
-    # taken unix to datetime from firas pandas extra demo code
-    def unix_to_date(unix):
-        return pd.to_datetime(unix, unit = "ms").tz_localize('UTC').tz_convert('US/Pacific')
-    # Clean unix timestamp to a human readable timestamp.
-    df['timestamp']= df['timestamp'].apply(unix_to_date)
-    # set index as timestamp
-    df = df.set_index(['timestamp'])
-    return df
-    # return None
-d = get_data_crypto()
-print(d)
+@st.cache
+def load_data(ticker):
+    data = yf.download(ticker,START,TODAY)
+    data.reset_index('Date',inplace=True)
+    data = pd.DataFrame(data)
+    return data
 
+data_load_state = st.text("Load data")
+data = load_data(selected_stocks)
+data_load_state.text("Loading data")
 
+st.subheader("Asset Data Head")
+st.write(data.head())
+st.subheader('Asset Data Tail')
+st.write(data.tail())
+def plot_raw_data():
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=data['Date'],y=data['Open'],name='Coin Open'))
+    fig.add_trace(go.Scatter(x=data['Date'],y=data['Close'],name='Coin Close'))
+    fig.layout.update(title_text="Time Series Data",xaxis_rangeslider_visible=True)
+    st.plotly_chart(fig)
 
+plot_raw_data()
 
-def analyze_data(d):
-    d = d
+# Forecasting
+def analyze_data(data):
+    d = data
     # # get the percent change for the coin and drop NaN values
     coin_pct_change = d['Close'].pct_change().dropna()
-  
-    # get the annual pct change for the coin
+    # coin_pct_change = pd.DataFrame(coin_pct_change)
     coin_annual_pct_change = coin_pct_change.mean() * 365
-   
+
     # calculate the annual std for BTC
     coin_annual_std = coin_pct_change.std() * (365) ** (1/2)
   
-    # create and plot the SMA for a 50 and 200 day period
+  # create and plot the SMA for a 50 and 200 day period
     ax = d['Close'].plot(figsize=(10,7), title="Daily prices versus 180-Day and 7-day Rolling Average")
     d['Close'].rolling(window=200).mean().plot(ax=ax)
     d['Close'].rolling(window=50).mean().plot(ax=ax, color= 'red')
     ax.legend(["Daily Prices", "50-Day Rolling Average", '200 day rolling average'])
-   
+
+    
     # calculate the variance for the coin
     coin_variance = coin_pct_change.var()
-    print(f" The Variance is: {coin_variance: .2f}")
-    
+    st.write(f" The Variance is: {coin_variance: .6f}")
+    st.write("""The Variance measures the deviation of the asset from the average (mean) price. A higher number will generally 
+    indicate a more volitile asset, as it tends to deviate from the mean price more consistently""")
     # calculate the sharpe ratio for the coin
     sharpe_ratio = coin_annual_pct_change / coin_annual_std
-    print(f" The Sharpe Ratio is: {sharpe_ratio: .2f}")
+    st.write(f" The Sharpe Ratio is: {sharpe_ratio: .3f}")
+    st.write(""" The Sharpe Ratio takes the assets average annual return and divides it by the assets annual standard deviation.
+    This would be used to measure the Risk/Reward that you would be taking in a trade. Generally, a Sharpe Ratio between 1 - 2 is 
+    considered good, and anything over 3 is amazing!""")
     
-    # calculate the covariance between the coin and SPY
-    cov = d['Close'].pct_change().cov(d['Close'].pct_change())*100000
-    print(f" The covariance to SPY is: {cov: .2f}")
+    # # calculate the covariance between the coin and SPY
+    # cov = coin_pct_change.cov(d['Close'].pct_change())
+    # st.write(f" The covariance to SPY is: {cov: .2f}")
     
     # calculate and pring the mean cumulative returns for the coin
-    cum_returns = (1 + coin_pct_change).cumprod() - 1 
-    cum_returns_mean = cum_returns.mean()
-    print(f' The average Cumulative Return is: % {cum_returns_mean: .2f}')
+    # get the annual pct change for the coin
+    coin_annual_pct_change = coin_annual_pct_change * 100
+    st.write(f" The Annual Percent Return is: % {coin_annual_pct_change: .3f}")
+    st.write("The Annual Percent Return demonstrates the annual rate of return for the asset. The Higher rate of return, the better!")
 
-analyze_data(d)
+analyze_data(data)
 
 
 
-def monte_carlo_sim(d):   
-    d = d
+def monte_carlo_sim(data):   
+    d = data
     #Next, we calculate the number of days that have elapsed in our chosen time window
-    time_elapsed = (d.index[-1] - d.index[0]).days
+    time_elapsed = len(d)
+    
 
     #Current price / first record (e.g. price at beginning of 2009)
     #provides us with the total growth %
-    total_growth = (d['Close'][-1] / d['Close'][1])
+    total_growth = (d['Close'].iloc[-1] / d['Close'].iloc[0])
 
     #Next, we want to annualize this percentage
     #First, we convert our time elapsed to the # of years elapsed
@@ -148,13 +149,17 @@ def monte_carlo_sim(d):
     #we'll need to scale this by an annualization factor
     #reference: https://www.fool.com/knowledge-center/how-to-calculate-annualized-volatility.aspx
 
-    number_of_trading_days = 252
+    number_of_trading_days = 365
     std_dev = std_dev * math.sqrt(number_of_trading_days)
 
     #From here, we have our two inputs needed to generate random
     #values in our simulation
-    print ("cagr (mean returns) : ", str(round(cagr,4)))
-    print ("std_dev (standard deviation of return : )", str(round(std_dev,4)))
+    st.write("Compound Annual Growth Rate (cagr): ", str(round(cagr,4)))
+    st.write("""The cagr is used to measure the compounded growth of an asset over a yearly basis. In this case, we are measuring the annual 
+    compounded returns, so you can think of this as the average compounded annual return""")
+    st.write("Standard Deviation (std)", str(round(std_dev,4)))
+    st.write(""" The Standard Deviation can be used as a volitlity metric, and showcase how many times a stock is deviating from 
+    the mean price""")
 
     #Generate random values for 1 year's worth of trading (252 days),
     #using numpy and assuming a normal distribution
@@ -167,19 +172,21 @@ def monte_carlo_sim(d):
 
     #This distribution is known as a 'random walk'
 
-    price_series = [d['Close'][-1]]
-
+    price_series = [d['Close'].iloc[-1]]
+    
     for j in daily_return_percentages:
-        price_series.append(price_series[-1] * j)
+        price_series.append(price_series[0] * j)
 
     #Great, now we can plot of single 'random walk' of stock prices
     plt.plot(price_series)
-    plt.show()
+    
+    plot_0_5 = plt.show()
+    st.pyplot(plot_0_5)
 
     #Now that we've created a single random walk above,
     #we can simulate this process over a large sample size to
     #get a better sense of the true expected distribution
-    number_of_trials = 3000
+    number_of_trials = 200
 
     #set up an additional array to collect all possible
     #closing prices in last day of window.
@@ -191,24 +198,33 @@ def monte_carlo_sim(d):
         #calculate randomized return percentages following our normal distribution
         #and using the mean / std dev we calculated above
         daily_return_percentages = np.random.normal(cagr/number_of_trading_days, std_dev/math.sqrt(number_of_trading_days),number_of_trading_days)+1
-        price_series = [d['Close'][-1]]
+        price_series = [d['Close'].iloc[-1]]
 
         for j in daily_return_percentages:
             #extrapolate price out for next year
-            price_series.append(price_series[-1] * j)
-
+            price_series.append(price_series[0] * j)
+    
         #append closing prices in last day of window for histogram
+
         closing_prices.append(price_series[-1])
 
         #plot all random walks
         plt.plot(price_series)
 
-    plt.show()
+        
+    plot_please = plt.show()
+    st.pyplot(plot_please)
+
+   
+    # plot_1 = plt.show()
+    # st.line_chart(plot_1)
 
     #plot histogram
-    plt.hist(closing_prices,bins=40)
-
-    plt.show()
+    st.bar_chart(closing_prices)
+    
+    # # ,bins=40
+    # plot_2 = plt.show()
+    # st.pyplot(plot_2)
 
     #lastly, we can split the distribution into percentiles
     #to help us gauge risk vs. reward
@@ -218,57 +234,21 @@ def monte_carlo_sim(d):
 
     #Pull bottom 10% of possible outcomes
     bottom_ten = np.percentile(closing_prices,10);
-
+    # bins=40
     #create histogram again
-    plt.hist(closing_prices,bins=40)
+    plt.hist(closing_prices)
     #append w/ top 10% line
     plt.axvline(top_ten,color='r',linestyle='dashed',linewidth=2)
     #append w/ bottom 10% line
     plt.axvline(bottom_ten,color='r',linestyle='dashed',linewidth=2)
     #append with current price
-    plt.axvline(d['Close'][-1],color='g', linestyle='dashed',linewidth=2)
+    plt.axvline(d['Close'].iloc[-1],color='g', linestyle='dashed',linewidth=2)
 
-    plt.show()
-
+    plot_3 = plt.show()
+    st.pyplot(plot_3)
     #from here, we can check the mean of all ending prices
     #allowing us to arrive at the most probable ending point
     mean_end_price = round(np.mean(closing_prices),2)
-    print("Expected price: ", str(mean_end_price))
+    st.write("Expected price: ", str(mean_end_price))
 
-monte_carlo_sim(d)
-# # connect to database function
-# def connect():
-#     '''Connect to the sqlite database server''' 
-#     conn = None
-#     try:
-#         # connect to the SQLite server
-#         print('Connecting to the SQLite database...')
-#         conn = sql.create_engine('sqlite:///')
-#     except :
-#         print("Connection not successful!")
-#         sys.exit(1)
-#     print("Connection Successful!")
-#     return conn
-# #copy data to database
-# def copy_to_db(conn, df, table):
-#     """
-#     save the dataframe in memory as a sqlite database with name 'table' 
-#     conn is the connection engine used. use connect function to get 
-#     """    
-#     try:
-#         df.to_sql('%s'%table, con=conn, index=True,if_exists='replace')
-#         print(f'Saving dataframe as a table called {table} in sqlite database')
-#     except :
-#         print("Error")
-#     print("Done!")
-#     return conn.table_names()
-# #copy a dataframe from database based on a query
-# def open_as_df(query,conn):
-#     '''pass query to get dataframe: select * from spy_db_OHLCV fx. '''
-#     try:
-#         df = pd.read_sql_query(sql = query,con = conn, index_col= ['timestamp'])
-#         print('Accessing SQLite database based on query')
-#     except :
-#         print('Error')
-#         sys.exit(1)
-#     return df
+monte_carlo_sim(data)
