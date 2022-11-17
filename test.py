@@ -119,7 +119,7 @@ def analyze_data(data):
     st.caption("The Annual Percent Return demonstrates the annual rate of return for the asset. The Higher rate of return, the better!")
         
         # create and plot the SMA for a 50 and 200 day period
-    ax = d['Close'].plot(figsize=(10,7), title="Daily prices versus 180-Day and 7-day Rolling Average")
+    ax = d['Close'].plot(figsize=(10,7))
     d['Close'].rolling(window=200).mean().plot(ax=ax)
     d['Close'].rolling(window=50).mean().plot(ax=ax, color= 'Red')
     ax.legend(["Daily Prices", "50-Day Rolling Average", '200 day rolling average'])
@@ -236,7 +236,7 @@ def monte_carlo_sim(data):
 
     #lastly, we can split the distribution into percentiles
     #to help us gauge risk vs. reward
-
+    st.subheader("Normal Distribution Chart")
     #Pull top 10% of possible outcomes
     top_ten = np.percentile(closing_prices,100-10)
 
