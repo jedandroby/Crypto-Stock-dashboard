@@ -1,2 +1,36 @@
 11/6/22
-Cleaned up the github repo, created workflow updates directory and dashboard testing directory. Cleaned up the readme file after alex, zach, and kaio worked on it. Added some extra questions and points in the breakdown of tasks. Did research into various API'S trying to find limitations and differences between them so we can find the API that would work best for our needs. Looked into github to try and make it so that everyone can create pull requests and merge them to the mainchain. (Still need to figure this out. looks like it should be possible?) 
+Cleaned up the github repo, created workflow updates directory and dashboard testing directory. Cleaned up the readme file after alex, zach, and kaio worked on it. 
+Added some extra questions and points in the breakdown of tasks. Did research into various API'S trying to find limitations and differences between them so we 
+can find the API that would work best for our needs. Looked into github to try and make it so that everyone can create pull requests and merge 
+them to the mainchain. (Still need to figure this out. looks like it should be possible?) 
+
+11/8/22
+Looked into ccxt package and getting data from it. considering using it to get easy current data.
+Created 'dev' branch and pushed to github, edited github rules to edit 'main' chain.
+
+11/9/22
+Created testing notebook for messing around with getting data in from ccxt. Successfully got BTC data in from binanceus,
+saved it in a dataframe and cleaned the data enough to make it readable. Created robin branch and helped alex navigate
+github and pull my changes and get his branch setup. 
+Worked with zach,kaio, and alex for roughly 3 hours. Tried using einblick for working on code together, wrote functions for getting BTC data in from ccxt
+helped review functions for alex and kaio and helped zach a little troubleshoot SQL for our database. Went through github branches
+and making sure everyone was understanding a workflow for using github and pushing/pulling. 
+github and pull my changes and get his branch setup. 
+
+11/10/22 
+did work during class with zach, alex and kaio figuring out our next steps and continuing to work on github workflow and fixing any merge issues.
+starting research into technical indicators and monte carlo simulations. 
+worked on creating a function for the storing of the analyzed data into a sql database and make functions out of the queries
+
+11/12/22
+Spent a couple hours in the morning adjusting the crypto function to be user freindly and flexible so the user can select exchange and token to be analyzed.
+Still need to write the try and excepts so if a USD pair is not found, it goes for USDC, or USDT, or other throws and error telling user to try a different exchange or ticker. 
+
+11/13/22
+spent an hour in the morning making the SQL functions to connect to the engine and copy a dataframe to the sqlite database with a table name parameter, still need to write code to 
+incorporate questionary and make user enter table name if they want to save it. Also wrote the function for copying a dataframe from the database based on a query.
+spent a couple hours in the evening working with zach, alex and kaio, regrouping on our project and planning next steps. We are thinking of having zach
+work on the functions for calculations, kaio and alex work on getting the dashboard working and doing the smaller details, and ill work on the try/except for the crypto
+data. This was giving me issues and i need to check with firas come monday. Ill also work on getting a candle stick chart to display the data on the dashboard that we bring in
+for the monte carlo simulations. 
+

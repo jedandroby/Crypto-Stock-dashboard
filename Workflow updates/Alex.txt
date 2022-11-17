@@ -1,4 +1,13 @@
-Project Task List
+Project Log
+
 
 11/06/2022 - Kaio, Robin and Zach and I had a meeting on Slack.  We collaborated various ideas on our project.  I submitted the datasets to be used 
 to the group to be added to the project proposal readme file.  Kaio and I also collaborated on the research question to answer.  
+
+11/07/2000 (1.5 hour) - Collaboration with team members on Zoom meeting.  
+
+11/09/2022 (1 hour) Robin and I had a Zoom meeting in the afternoon and he showed me his API ccxt coding. He requested me to do the coding for the coding for the API QQQ.  
+
+11/09/2022 (3 hours) - I did the coding for the Alpaca API for QQQ.   I collaborated with the team on einblick.  Robin did some quality control and Zach merged the Alpaca API for QQQ into the main jupyter notebook.  
+
+
