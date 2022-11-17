@@ -2,36 +2,11 @@ import streamlit as st
 from datetime import date
 import yfinance as yf
 import plotly.graph_objects as go
-import yfinance as yf
-import plotly.graph_objects as go
-import ccxt
-# jupyter lab --NotebookApp.iopub_data_rate_limit=1.0e10 - this command is required to run when opening jupyter labs or ccxt wont work in jupyter. or configure a config file.
 import pandas as pd
-import hvplot.pandas
-# from dotenv import load_dotenv
-import alpaca_trade_api as tradeapi
-import os
-import sqlalchemy as sql
-import sys
 import numpy as np
-from MCForecastTools import MCSimulation
-from warnings import filterwarnings
-# import pandas_ta as ta
-from scipy.stats import norm
+# from scipy.stats import norm
 import math
 import matplotlib.pyplot as plt
-filterwarnings("ignore")
-import pandas as pd
-import hvplot.pandas
-# from dotenv import load_dotenv
-import alpaca_trade_api as tradeapi
-import os
-import sqlalchemy as sql
-import sys
-from MCForecastTools import MCSimulation
-from warnings import filterwarnings
-filterwarnings("ignore")
-
 
 
 
