@@ -74,11 +74,12 @@ st.subheader("Asset Data Head")
 st.write(data.head())
 st.subheader('Asset Data Tail')
 st.write(data.tail())
+st.subheader("Interactive Asset Chart")
 def plot_raw_data():
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=data['Date'],y=data['Open'],name='Coin Open'))
     fig.add_trace(go.Scatter(x=data['Date'],y=data['Close'],name='Coin Close'))
-    fig.layout.update(title_text="Time Series Data",xaxis_rangeslider_visible=True)
+    fig.layout.update(xaxis_rangeslider_visible=True)
     st.plotly_chart(fig)
 
 plot_raw_data()
