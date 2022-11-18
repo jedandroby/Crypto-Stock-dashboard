@@ -1,19 +1,7 @@
 import ccxt
 # jupyter lab --NotebookApp.iopub_data_rate_limit=1.0e10 - this command is required to run when opening jupyter labs or ccxt wont work in jupyter. or configure a config file.
 import pandas as pd
-import os
-# import sqlalchemy as sql
-import sys
-import questionary
-from MCForecastTools import MCSimulation
-from warnings import filterwarnings
-filterwarnings("ignore")
-import pandas as pd
-import hvplot.pandas
 import numpy as np
-from MCForecastTools import MCSimulation
-from warnings import filterwarnings
-from scipy.stats import norm
 import math
 import matplotlib.pyplot as plt
 import questionary
@@ -25,8 +13,7 @@ def get_data_crypto():
     '''
     # getting list of qualified exchanges for user to choose to connect too.
     exchanges = ccxt.exchanges
-    qe=['binance','bitfinex','bithumb','bitstamp','bittrex','coinbase','gemini','kraken',
-    'hitbtc','huobi','okex','poloniex','yobit','zaif']
+    qe=['binance','bitstamp','bittrex','gemini','kraken',]
     fe=[s for s in exchanges if any(exchanges in s for exchanges in qe)]
     exchange_id = questionary.select("Which exchange do you wish to pull from?",choices=fe).ask()
     exchange_class = getattr(ccxt, exchange_id)
@@ -68,8 +55,8 @@ def get_data_crypto():
     df = df.set_index(['timestamp'])
     return df
     # return None
-d = get_data_crypto()
-print(d)
+# d = get_data_crypto()
+# print(d)
 
 
 
@@ -100,15 +87,15 @@ def analyze_data(d):
     print(f" The Sharpe Ratio is: {sharpe_ratio: .2f}")
     
     # calculate the covariance between the coin and SPY
-    cov = d['Close'].pct_change().cov(d['Close'].pct_change())*100000
-    print(f" The covariance to SPY is: {cov: .2f}")
+    # cov = d['Close'].pct_change().cov(d['Close'].pct_change())*100000
+    # print(f" The covariance to SPY is: {cov: .2f}")
     
     # calculate and pring the mean cumulative returns for the coin
     cum_returns = (1 + coin_pct_change).cumprod() - 1 
     cum_returns_mean = cum_returns.mean()
     print(f' The average Cumulative Return is: % {cum_returns_mean: .2f}')
 
-analyze_data(d)
+# analyze_data(d)
 
 
 
@@ -222,6 +209,28 @@ def monte_carlo_sim(d):
     #from here, we can check the mean of all ending prices
     #allowing us to arrive at the most probable ending point
     mean_end_price = round(np.mean(closing_prices),2)
-    print("Expected price: ", str(mean_end_price))
+    print("Expected price for asset $", str(mean_end_price))
 
-monte_carlo_sim(d)
+# monte_carlo_sim(d)
+
+
+def run():
+    df = get_data_crypto()
+    analyze_data(df)
+    monte_carlo_sim(df)
+    continue_run= questionary.select('Do you want to analyze another token?',choices=['Yes','No']).ask()
+    return continue_run
+
+# The `__main__` loop of the application.
+# It is the entry point for the program.
+if __name__ == "__main__":
+     # Create a variable named running and set it to True
+    running = True
+
+    # While running is `True` call the `run` function.
+    while running:
+        continue_running = run()
+        if continue_running == 'Yes':
+            running = True
+        else:
+            running = False

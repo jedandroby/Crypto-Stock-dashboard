@@ -34,3 +34,7 @@ work on the functions for calculations, kaio and alex work on getting the dashbo
 data. This was giving me issues and i need to check with firas come monday. Ill also work on getting a candle stick chart to display the data on the dashboard that we bring in
 for the monte carlo simulations. 
 
+11/16/22
+Forgot to update this text file for a few days. Spent a couple hours tonight with zach and kaio working on getting the dashboard running with streamlit
+and using our functions for monte carlo and troubleshooting any errors we were getting. Spent time talking together on our plans for tomorrow
+and dividing up the work for getting the final things done and in place before having to present tomorrow in class. 
