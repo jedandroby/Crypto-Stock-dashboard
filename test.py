@@ -1,49 +1,21 @@
 import streamlit as st
 from datetime import date
-import yfinance as yf
 import plotly.graph_objects as go
-<<<<<<< HEAD
-=======
 import yfinance as yf
-import plotly.graph_objects as go
-import ccxt
-# jupyter lab --NotebookApp.iopub_data_rate_limit=1.0e10 - this command is required to run when opening jupyter labs or ccxt wont work in jupyter. or configure a config file.
->>>>>>> 4c0d08e4d30ee449285a11d385eb7d9a7e948214
 import pandas as pd
 import numpy as np
-# from scipy.stats import norm
 import math
 import matplotlib.pyplot as plt
-<<<<<<< HEAD
-=======
-filterwarnings("ignore")
-import pandas as pd
 import hvplot.pandas
-# from dotenv import load_dotenv
 import alpaca_trade_api as tradeapi
 import os
 import sqlalchemy as sql
 import sys
-from MCForecastTools import MCSimulation
-from warnings import filterwarnings
-filterwarnings("ignore")
-
-
->>>>>>> 4c0d08e4d30ee449285a11d385eb7d9a7e948214
 
 
 
-# st.set_page_config(
-#     page_title="Ex-stream-ly Cool App",
-#     page_icon="🧊",
-#     menu_items={
-#         'Get Help': 'https://www.extremelycoolapp.com/help',
-#         'Report a bug': "https://www.extremelycoolapp.com/bug",
-#         'About': "# This is a header. This is an *extremely* cool app!"
-#     }
-# )
-# from plotly import graph_objs as go
-# str
+
+
 
 START = "2010-01-01"
 TODAY = date.today().strftime("%Y-%m-%d")
@@ -152,7 +124,7 @@ def monte_carlo_sim(data):
     #daily price changes
     std_dev = d['Close'].pct_change().std()
 
-    #Next, because there are roughy ~252 trading days in a year,
+    #Next, because there are 365 trading days in a year for Crypto,
     #we'll need to scale this by an annualization factor
     #reference: https://www.fool.com/knowledge-center/how-to-calculate-annualized-volatility.aspx
 
