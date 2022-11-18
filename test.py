@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 
 
 
-
 START = "2010-01-01"
 TODAY = date.today().strftime("%Y-%m-%d")
 
