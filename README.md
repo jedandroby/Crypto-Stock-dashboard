@@ -1,98 +1,62 @@
 
-# Project Title: Crypto/Stock Dashboard
+# Crypto Dashboard and Price Predictor
 **Project 1 for Fintech bootcamp through UC Berkeley.**
 
-## Team Members
-Alex Valenzuela, Robin Thorsen, Kaio Farkouh, Zach Eras
-
-
-
-# Datasets to be Used
-Date, open, High, Low, Volume, Change in Price
-
-# Rough Breakdown of Tasks
-
-
----
-
 # Project Description
-We are creating a dashboard for analyzing trading strategies with 5 different strategies, on the top 5 different Crypto Tokens excluding stablecoins. We will be running the same strategies on SPY and NASDAQ 100 to show comparison to trad-fi market. We will run analysis on the assets to use results for running Monte carlo simulations on the trading strategies. Then we will be getting the Sharpe ratio/beta/cov along with SUM stats, and will be prompting the user with how they want to save their results, ex. email, csv file, etc. Another way to think of this dashboard, is as an automatic trading backtesting application.
+We created an asset price predictor using monte carlo simulations. The code will pull in data from an API and grab the most recent data for the token of your choice in the form of daily candles. It will then run analysis on that token plotting the data pulled in. Shortly after you see the values for Variance, Sharpe ratio, Mean Annual percentage return, and standard deviation. After it will show a chart with the moving averages for the 50 and 200 day. Next the program will run a series of monte carlo simulations and show you possible projections of where price could go in the next year utilizing the results provided above. Finally you will see a normal distribution chart showing the results of the simulations and an expected 'average' price the asset will be around a year later. 
 
-
----
-
-# Research Questions to Answer
-- What are the daily limit for APIs? 
-- How many channels are we limited to?
-- How many concurrent channels are allowed?
-- What is the change of price over a period of time?
-- What strategies do we want to try and use? 
-- What indicators or trading tools will the strategies be based on?
-- 
-
+Currently we have two live and running prototypes. The first is our alpha test file `alpha.py` that runs using the questionary package and utilizing the ccxt package to get data. This file is stable and runs in VS code or a similar IDE. More details below on how to get started on your local machine.
+The second prototype we currently have running is a website [deployed](https://jedandroby-crypto-stock-dashboard-test-gilg5r.streamlit.app/) via streamlit utilizing this very GitHub repo! The file containing the code for that dashboard is located in the `dashboard.py` file. 
 
 ---
+## Package Requirements and versions
+First before installing any packages and getting setup make sure you are in a `dev` environment or an environment you are comfortable downloading packages into. If you don't know what a `dev` environment is follow along below. 
+To get your `dev` environment setup do the following in your command line:
 
-# Datasets to be Used
+- Creating a dev environment for python 3.7 called 'dev' - if you do not already have an environment setup 
+    - Get setup in your preferred CLI (Gitbash, terminal, etc)
+    - `conda create -n dev python=3.7 anaconda`
+    - Once you have created the environment, type the following to activate and deactivate.
+![conda activate/deactivate](./Images/anaconda_dev_env.png)
 
-Will probably use Alpaca and the free crypto api for getting the data, the data we will need include:
-                Date, Open, High, Low, Close, Volume and Change in Price
+Packages needed will depend on what you are trying to do. Since the dashboard is [deployed](https://jedandroby-crypto-stock-dashboard-test-gilg5r.streamlit.app/) already these steps will be if you decide to clone the repo and run the `alpha.py` file locally
+
+Once you have cloned the repo and have a `dev` or similar env with python 3.7 or higher the next step is to make sure you have the packages installed locally. Navigate to the newly cloned repo and make sure you are in the `alpha` directory. 
+Then type `pip install requirements.txt`, this will install any necessary packages to your env. 
 
 ---
+## File Navigation
+- `alpha` -- Contains `alpha.py` and `requirements.txt` needed for running alpha product, analysis using VS code
+- `Dashboard testing` -- Contains files needed for testing of panels dashboard
+- `docs` -- Contains `functions.py` and `kaio.ipynb` which both include helper functions and workspace code for finding solutions and building app
+- `Images` -- Contains .png files used for `readme.md`
+- `Workflow updates` -- Contains .txt files for contributors used for updating work they did and what they were looking into.
+- `test.py` -- file used for deploying streamlit dashboard.
 
-# Rough Breakdown of Tasks
+---
+## Usage 
 
-- 1 Get Data - Robin, Alex
-     - What API or APIs are we using? Alpaca, free crypto api
-     - What types of data should we look for? prices, volume, change in price, fear and greed
-     - What time frames are we looking for? minute, hourly, daily? 
-  
-- 2 Clean data - Kaio, Zach
-     - What metrics are important to keep and which ones arent?
-     - We should map out the trading strategies we are using this way understand how we best want to clean the data.
-   
-- 3 Analyze data Zach, Robin
-    - Identifying trends, analyzing patterns, and sorting the correct data in the right dataframes
-    - We will get a better sense of how to analyze the data dependent upon the trading strategies we are using
-   
-- 4 Strategies/Simulations on data - Zach, Robin, Alex, Kaio
-    - Monte Carlo Simulation - 
-    - Finding the Sharpe Ratio and beta
-    - Covariance from crypto assets to stock market
-    - Summary statistics, 95% range
-    - implement the trading strategy conditions
-     
-    
-- 5 Metrics from strategies - Alex, Kaio
-    - Which strategies performed best? 
-    - Any surprises from strategies?
-    - does it beat out simply HODLING? 
-    
-- 6 Visualize data - Zach, Kaio
-    - plot the monte carlo simulation, 95% ranges
-    - plot covariance
-    - plot sharpe ratio and beta
-    - any other plots we think are important
-    
-    
-- 7 Export data -how user wants? - Alex, Robin
-    - sending an email?
-    - Create a csv file with all of the simulations that were run?
-    - Should we showcase the results on the dashboard, or just send an email back to them?
-    - Create an option for user to pick - email, csv, pdf, etc??
-    
-- 8 Bug fixing :D - All hands on Deck!
+Now that you have the env setup and the requirements installed, open your VS code or similar IDE, make sure you are in the alpha directory and type `python alpha.py`. 
+You should see something similar to this ![exchanges](./Images/exchanges.png) 
+
+This image above shows a full run through of the app and starts over. Simply navigate through and pick your exchanges/tokens, and the code will find a USD pair to run the analysis on.
+![popups](./Images/popups.png) 
+
+when you get to this point you will get four pop-up images that show the results of the monte carlo simulations, simply close each one and the program will continue and ask if you want to go again!
+
 
 ---
 
 ## Contributors
 
-[Robin Thorsen](https://www.linkedin.com/in/robin-thorsen-079819120/), Alex Valenzuela, Kaio Farkouh, Zach Eras are the developers/analysts who worked on this project. 
+[Robin Thorsen](https://www.linkedin.com/in/robin-thorsen-079819120/), Alex Valenzuela, [Kaio Farkouh](https://www.linkedin.com/in/kaio-farkouh/), Zach Eras are the developers/analysts who worked on this project. 
 
 ---
 
 ## License
 
 Apache 2.0 public License applied, feel free to clone and fork and use and reach out if you have questions. 
+
+
 
 
