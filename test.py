@@ -2,24 +2,20 @@ import streamlit as st
 from datetime import date
 import yfinance as yf
 import plotly.graph_objects as go
+<<<<<<< HEAD
+=======
 import yfinance as yf
 import plotly.graph_objects as go
 import ccxt
 # jupyter lab --NotebookApp.iopub_data_rate_limit=1.0e10 - this command is required to run when opening jupyter labs or ccxt wont work in jupyter. or configure a config file.
+>>>>>>> 4c0d08e4d30ee449285a11d385eb7d9a7e948214
 import pandas as pd
-import hvplot.pandas
-# from dotenv import load_dotenv
-import alpaca_trade_api as tradeapi
-import os
-import sqlalchemy as sql
-import sys
 import numpy as np
-from MCForecastTools import MCSimulation
-from warnings import filterwarnings
-# import pandas_ta as ta
-from scipy.stats import norm
+# from scipy.stats import norm
 import math
 import matplotlib.pyplot as plt
+<<<<<<< HEAD
+=======
 filterwarnings("ignore")
 import pandas as pd
 import hvplot.pandas
@@ -33,9 +29,19 @@ from warnings import filterwarnings
 filterwarnings("ignore")
 
 
+>>>>>>> 4c0d08e4d30ee449285a11d385eb7d9a7e948214
 
 
 
+# st.set_page_config(
+#     page_title="Ex-stream-ly Cool App",
+#     page_icon="🧊",
+#     menu_items={
+#         'Get Help': 'https://www.extremelycoolapp.com/help',
+#         'Report a bug': "https://www.extremelycoolapp.com/bug",
+#         'About': "# This is a header. This is an *extremely* cool app!"
+#     }
+# )
 # from plotly import graph_objs as go
 # str
 
@@ -44,7 +50,7 @@ TODAY = date.today().strftime("%Y-%m-%d")
 
 st.title("Monte Carlo Asset Predictor")
 
-stocks = ("BTC-USD","LINK-USD","SOL-USD","MATIC-USD","MANA-USD","DOT-USD","AVAX-USD","XLM-USD","LTC-USD","XRP","ETH-USD","ADA-USD","USDC-USD")
+stocks = ("BTC-USD","LINK-USD","SOL-USD","MATIC-USD","MANA-USD","DOT-USD","AVAX-USD","XLM-USD","LTC-USD","XRP-USD","BNB-USD","UNI-USD","ETH-USD","ADA-USD","USDC-USD")
 selected_stocks = st.selectbox("Pick a coin for prediction",stocks)
 
 # n_years = st.slider("Years of Prediction:",1,15)
@@ -91,14 +97,16 @@ def analyze_data(data):
     coin_variance = coin_pct_change.var()
     st.subheader("Asset Analysis")
     
-    st.write(f" The Variance is: {coin_variance: .6f}")
+    st.write(f" The Variance is: {coin_variance: .5f}")
     st.caption("""The Variance measures the deviation of the asset from the average (mean) price. A higher number will generally 
-    indicate a more volitile asset, as it tends to deviate from the mean price more consistently""")
+    indicate a more volitile asset, as it tends to deviate from the mean price more consistently. But, this could also mean that 
+    you have the ability to make more return on your investment, as there is more deviation from the average price. A lower number
+    demonstrates the asset is less volitile, and could be seen as a 'safer' investment.""")
     # calculate the sharpe ratio for the coin
     sharpe_ratio = coin_annual_pct_change / coin_annual_std
-    st.write(f" The Sharpe Ratio is: {sharpe_ratio: .3f}")
+    st.write(f" The Sharpe Ratio is: {sharpe_ratio: .2f}")
     st.caption(""" The Sharpe Ratio takes the assets average annual return and divides it by the assets annual standard deviation.
-    This would be used to measure the Risk/Reward that you would be taking in a trade. Generally, a Sharpe Ratio between 1 - 2 is 
+    This is used to measure the risk/reward that you would be taking in a trade. Generally, a Sharpe Ratio between 1 - 2 is 
     considered good, and anything over 3 is amazing!""")
     
     # # calculate the covariance between the coin and SPY
@@ -108,8 +116,9 @@ def analyze_data(data):
     # calculate and pring the mean cumulative returns for the coin
     # get the annual pct change for the coin
     coin_annual_pct_change = coin_annual_pct_change * 100
-    st.write(f" The Annual Percent Return is: % {coin_annual_pct_change: .3f}")
-    st.caption("The Annual Percent Return demonstrates the annual rate of return for the asset. The Higher rate of return, the better!")
+    st.write(f" The Annual Percent Return is: % {coin_annual_pct_change: .2f}")
+    st.caption("""The Annual Percent Return demonstrates the annual rate of return for the asset. The Higher rate of return, the better! 
+    To calculate this, we take the average returns of the asset, and multiply it by 365, which gives us the average annual return!""")
         
         # create and plot the SMA for a 50 and 200 day period
     ax = d['Close'].plot(figsize=(10,7))
@@ -155,14 +164,16 @@ def monte_carlo_sim(data):
     # st.write("Compound Annual Growth Rate (cagr): ", str(round(cagr,4)))
     # st.caption("""The cagr is used to measure the compounded growth of an asset over a yearly basis. In this case, we are measuring the annual 
     # compounded returns, so you can think of this as the average compounded annual return""")
-    st.write("Standard Deviation (std)", str(round(std_dev,4)))
-    st.caption(""" The Standard Deviation can be used as a volitlity metric, and showcase how many times a stock is deviating from 
-    the mean price""")
+    st.write("Standard Deviation (std)", str(round(std_dev,2)))
+    st.caption(""" The Standard Deviation can be used as a volitlity metric, and showcase the spread in which an asset deviates from the 
+    average price. Standard Deviation is more a measure of how far apart numbers are from each other, whereas
+    the variance will return a value to show how much the numbers vary from the mean. Generally, a std value over 1, will be considered
+    more volitile, whereas a std under 1 is seen as less volitile. """)
 
 
-    st.subheader("Simple Moving Average Chart")
+    st.subheader("50 and 200 Day Simple Moving Average Chart")
 
-    #Generate random values for 1 year's worth of trading (252 days),
+    #Generate random values for 1 year's worth of trading (365 days),
     #using numpy and assuming a normal distribution
     daily_return_percentages =  np.random.normal(cagr/number_of_trading_days, std_dev/math.sqrt(number_of_trading_days),number_of_trading_days)+1
 
@@ -187,8 +198,8 @@ def monte_carlo_sim(data):
     #Now that we've created a single random walk above,
     #we can simulate this process over a large sample size to
     #get a better sense of the true expected distribution
-    number_of_trials = 200
-    st.subheader("Monte Carlo Simulation")
+    number_of_trials = 500
+    st.subheader("One Year Monte Carlo Simulation - 500 trials")
     #set up an additional array to collect all possible
     #closing prices in last day of window.
     #We can toss this into a histogram
@@ -251,7 +262,15 @@ def monte_carlo_sim(data):
     #allowing us to arrive at the most probable ending point
     st.subheader("Monte Carlo Price Expectation Results")
     mean_end_price = round(np.mean(closing_prices),2)
-    st.write("The Expected price of the asset is : $", str(mean_end_price))
+    st.write("The Expected price of the asset in one year is : $", str(mean_end_price))
     st.caption("This is calculated by taking the average (mean) closing price of all the simulations.")
 
+
 monte_carlo_sim(data)
+
+
+
+st.write("Disclaimer")
+st.caption("""The values that are displayed in this dashboard are solely there for the purpose of knowledge and education. This in no
+    way is financial advice, and we strongly recommend to take into account many other factors before entering a trade. With that being said,
+    we hope you found this information helpful, and we wish you the best of luck on your trading endeavours!""")

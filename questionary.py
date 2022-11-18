@@ -127,7 +127,7 @@ def monte_carlo_sim(d):
     #Second, we can raise the total growth to the inverse of the # of years
     #(e.g. ~1/10 at time of writing) to annualize our growth rate
     cagr = total_growth ** (1/number_of_years) - 1
-
+    
     #Now that we have the mean annual growth rate above,
     #we'll also need to calculate the standard deviation of the
     #daily price changes
@@ -148,7 +148,6 @@ def monte_carlo_sim(d):
     #Generate random values for 1 year's worth of trading (252 days),
     #using numpy and assuming a normal distribution
     daily_return_percentages =  np.random.normal(cagr/number_of_trading_days, std_dev/math.sqrt(number_of_trading_days),number_of_trading_days)+1
-
     #Now that we have created a random series of future
     #daily return %s, we can simply apply these forward-looking
     #to our last stock price in the window, effectively carrying forward
@@ -164,11 +163,11 @@ def monte_carlo_sim(d):
     #Great, now we can plot of single 'random walk' of stock prices
     plt.plot(price_series)
     plt.show()
-
+    print(price_series)
     #Now that we've created a single random walk above,
     #we can simulate this process over a large sample size to
     #get a better sense of the true expected distribution
-    number_of_trials = 3000
+    number_of_trials = 300
 
     #set up an additional array to collect all possible
     #closing prices in last day of window.
