@@ -49,7 +49,7 @@ when you get to this point you will get four pop-up images that show the results
 
 ## Contributors
 
-[Robin Thorsen](https://www.linkedin.com/in/robin-thorsen-079819120/), Alex Valenzuela, [Kaio Farkouh](https://www.linkedin.com/in/kaio-farkouh/), Zach Eras are the developers/analysts who worked on this project. 
+[Robin Thorsen](https://www.linkedin.com/in/robin-thorsen-079819120/), Alex Valenzuela, [Kaio Farkouh](https://www.linkedin.com/in/kaio-farkouh/), [Zach Eras](https://www.linkedin.com/in/zachary-eras-24b5a8149/) are the developers/analysts who worked on this project. 
 
 ---
 
