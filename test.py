@@ -6,11 +6,7 @@ import pandas as pd
 import numpy as np
 import math
 import matplotlib.pyplot as plt
-import hvplot.pandas
-import alpaca_trade_api as tradeapi
-import os
-import sqlalchemy as sql
-import sys
+
 
 
 
@@ -22,7 +18,7 @@ TODAY = date.today().strftime("%Y-%m-%d")
 
 st.title("Monte Carlo Asset Predictor")
 
-stocks = ("BTC-USD","LINK-USD","SOL-USD","MATIC-USD","MANA-USD","DOT-USD","AVAX-USD","XLM-USD","LTC-USD","XRP-USD","BNB-USD","UNI-USD","ETH-USD","ADA-USD","USDC-USD")
+stocks = ("BTC-USD","LINK-USD","SOL-USD","MATIC-USD","MANA-USD","DOT-USD","AVAX-USD","XLM-USD","LTC-USD","XRP-USD","BNB-USD","UNI-USD","ETH-USD","ADA-USD","USDC-USD","BAT-USD")
 selected_stocks = st.selectbox("Pick a coin for prediction",stocks)
 
 # n_years = st.slider("Years of Prediction:",1,15)
@@ -162,7 +158,7 @@ def monte_carlo_sim(data):
         price_series.append(price_series[0] * j)
 
     #Great, now we can plot of single 'random walk' of stock prices
-    plt.plot(price_series)
+    # plt.plot(price_series)
     
     plot_0_5 = plt.show()
     st.pyplot(plot_0_5)
@@ -186,14 +182,14 @@ def monte_carlo_sim(data):
 
         for j in daily_return_percentages:
             #extrapolate price out for next year
-            price_series.append(price_series[0] * j)
+            price_series.append(price_series[-1] * j)
     
         #append closing prices in last day of window for histogram
 
         closing_prices.append(price_series[-1])
 
         #plot all random walks
-        plt.plot(price_series)
+        plot_please = plt.plot(price_series)
 
         
     plot_please = plt.show()
@@ -212,7 +208,7 @@ def monte_carlo_sim(data):
 
     #lastly, we can split the distribution into percentiles
     #to help us gauge risk vs. reward
-    st.subheader("Normal Distribution Chart")
+    st.subheader("Distribution Chart")
     #Pull top 10% of possible outcomes
     top_ten = np.percentile(closing_prices,100-10)
 
