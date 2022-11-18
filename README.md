@@ -1,5 +1,5 @@
 
-# Project Title: Crypto/Stock Dashboard and Price Predictor
+# Crypto Dashboard and Price Predictor
 **Project 1 for Fintech bootcamp through UC Berkeley.**
 
 # Project Description
