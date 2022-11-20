@@ -64,11 +64,11 @@ def analyze_data(data):
     coin_variance = coin_pct_change.var()
     st.subheader("Asset Analysis")
     
-    st.write(f" The Variance is: {coin_variance: .5f}")
-    st.caption("""The Variance measures the deviation of the asset from the average (mean) price. A higher number will generally 
-    indicate a more volitile asset, as it tends to deviate from the mean price more consistently. But, this could also mean that 
-    you have the ability to make more return on your investment, as there is more deviation from the average price. A lower number
-    demonstrates the asset is less volitile, and could be seen as a 'safer' investment.""")
+    # st.write(f" The Variance is: {coin_variance: .5f}")
+    # st.caption("""The Variance measures the deviation of the asset from the average (mean) price. A higher number will generally 
+    # indicate a more volitile asset, as it tends to deviate from the mean price more consistently. But, this could also mean that 
+    # you have the ability to make more return on your investment, as there is more deviation from the average price. A lower number
+    # demonstrates the asset is less volitile, and could be seen as a 'safer' investment.""")
     # calculate the sharpe ratio for the coin
     sharpe_ratio = coin_annual_pct_change / coin_annual_std
     st.write(f" The Sharpe Ratio is: {sharpe_ratio: .2f}")
@@ -85,7 +85,7 @@ def analyze_data(data):
     coin_annual_pct_change = coin_annual_pct_change * 100
     st.write(f" The Annual Percent Return is: % {coin_annual_pct_change: .2f}")
     st.caption("""The Annual Percent Return demonstrates the annual rate of return for the asset. The Higher rate of return, the better! 
-    To calculate this, we take the average returns of the asset, and multiply it by 365, which gives us the average annual return!""")
+    To calculate this, we take the average returns of the asset, and multiply it by 365, which gives us the average annual return! """)
         
         # create and plot the SMA for a 50 and 200 day period
     ax = d['Close'].plot(figsize=(10,7),title= 'Asset chart with 50 and 200 Simple Moving Average',ylabel='Price in USD $',xlabel='Time since first data point' )
@@ -125,13 +125,13 @@ def monte_carlo_sim(data):
 
     number_of_trading_days = 365
     std_dev = std_dev * math.sqrt(number_of_trading_days)
-
+    std_dev_percent = std_dev*100
     #From here, we have our two inputs needed to generate random
     #values in our simulation
     # st.write("Compound Annual Growth Rate (cagr): ", str(round(cagr,4)))
     # st.caption("""The cagr is used to measure the compounded growth of an asset over a yearly basis. In this case, we are measuring the annual 
     # compounded returns, so you can think of this as the average compounded annual return""")
-    st.write("Standard Deviation (std)", str(round(std_dev,2)))
+    st.write("Standard Deviation (std) %", str(round(std_dev_percent,2)))
     st.caption(""" The Standard Deviation can be used as a volitlity metric, and showcase the spread in which an asset deviates from the 
     average price. Standard Deviation is more a measure of how far apart numbers are from each other, whereas
     the variance will return a value to show how much the numbers vary from the mean. Generally, a std value over 1, will be considered
@@ -230,6 +230,7 @@ def monte_carlo_sim(data):
     st.subheader("Monte Carlo Price Expectation Results")
     mean_end_price = round(np.mean(closing_prices),2)
     st.write("The Expected price of the asset in one year is : $", str(mean_end_price))
+    st.write(f"There is a 90% confidence that the asset price will be in a range of ${bottom_ten} and ${top_ten}")
     st.caption("This is calculated by taking the average (mean) closing price of all the simulations.")
 
 
