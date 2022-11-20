@@ -38,3 +38,13 @@ for the monte carlo simulations.
 Forgot to update this text file for a few days. Spent a couple hours tonight with zach and kaio working on getting the dashboard running with streamlit
 and using our functions for monte carlo and troubleshooting any errors we were getting. Spent time talking together on our plans for tomorrow
 and dividing up the work for getting the final things done and in place before having to present tomorrow in class. 
+
+11/17/22
+Worked with kaio for 3-4 hours fixing dashboard and getting it working on a global link. 
+we also cleaned up the final things and got ready for the presentation as well as creating the
+readme.md file. Zach came on and we did a couple hours all 3 of us before class to 
+get the final thing cleaned up and polished and made sure everything worked
+
+11/20/22
+updated final things on readme for deploying streamlit, worked with zach on getting the dashboard
+cleaned up with updated and tips from firas and after the presentation. 

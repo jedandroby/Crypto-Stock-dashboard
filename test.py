@@ -88,7 +88,7 @@ def analyze_data(data):
     To calculate this, we take the average returns of the asset, and multiply it by 365, which gives us the average annual return!""")
         
         # create and plot the SMA for a 50 and 200 day period
-    ax = d['Close'].plot(figsize=(10,7))
+    ax = d['Close'].plot(figsize=(10,7),title= 'Asset chart with 50 and 200 Simple Moving Average',ylabel='Price in USD $',xlabel='Time since first data point' )
     d['Close'].rolling(window=200).mean().plot(ax=ax)
     d['Close'].rolling(window=50).mean().plot(ax=ax, color= 'Red')
     ax.legend(["Daily Prices", "50-Day Rolling Average", '200 day rolling average'])
@@ -207,7 +207,7 @@ def monte_carlo_sim(data):
 
     #lastly, we can split the distribution into percentiles
     #to help us gauge risk vs. reward
-    st.subheader("Distribution Chart")
+    st.subheader("Distribution Chart for simulation results")
     #Pull top 10% of possible outcomes
     top_ten = np.percentile(closing_prices,100-10)
 
@@ -226,7 +226,7 @@ def monte_carlo_sim(data):
     plot_3 = plt.show()
     st.pyplot(plot_3)
     #from here, we can check the mean of all ending prices
-    #allowing us to arrive at the most probable ending point
+    #allowing us to arrive at the most probable ending point 
     st.subheader("Monte Carlo Price Expectation Results")
     mean_end_price = round(np.mean(closing_prices),2)
     st.write("The Expected price of the asset in one year is : $", str(mean_end_price))
