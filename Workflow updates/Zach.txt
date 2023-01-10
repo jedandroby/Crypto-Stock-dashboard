@@ -9,3 +9,10 @@ We all went through Einblink and were able to collaborate with each others code.
 11/10/22
 
 Before class, I spent a few hours soring all of the types of data we had from the sql tables I made, and then starting to solve for different analysis tools, such as the sharpe ratio, std, beta, etc. During class, we broke out into breakout rooms, and during that time, I finished up making the tables, and also made different functions. Such as getting the sharpe ratios for BTC and SPY, summary statistics, charting the rolling metrics, and I tried to get the covariance for a longgg time, but finally Kaio helped out because we had to merge the dataframes together first to get the same dates. 
+
+11/12, 11/13, 11/16, 11/17 , 11/19
+
+Forgot to update this previously, but I have been working on the functions in the dashboard, monte carlo simulations, the financial analytics, the deployment, and then we all worked together on the finishing touches. I also wrote the executive summary and helped with anything else needed.
+
+
+
