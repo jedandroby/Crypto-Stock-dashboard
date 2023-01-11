@@ -10,8 +10,6 @@ import matplotlib.pyplot as plt
 
 
 
-
-
 START = "2010-01-01"
 TODAY = date.today().strftime("%Y-%m-%d")
 
@@ -230,9 +228,8 @@ def monte_carlo_sim(data):
     st.subheader("Monte Carlo Price Expectation Results")
     mean_end_price = round(np.mean(closing_prices),2)
     st.write("The Expected price of the asset in one year is : $", str(mean_end_price))
-    st.write(f"There is a 90% confidence that the asset price will be in a range of ${bottom_ten} and ${top_ten}")
-    st.caption("This is calculated by taking the average (mean) closing price of all the simulations.")
-
+    st.caption(f"""This is calculated by taking the average (mean) closing price of all the simulations. 
+    There is a 90% confidence that the asset price will be in a range of ${bottom_ten} and ${top_ten}""")
 
 monte_carlo_sim(data)
 
