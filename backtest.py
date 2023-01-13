@@ -151,11 +151,37 @@ def execute_trade(data, strategy):
 execute_trade(data,selected_strategy)
 
 
-    
 
+def backtest(data, strategy):
+    initial_capital = float(input("Enter your initial trading capital: "))
+    share_size = float(input("Enter your initial share size: "))
+    rsi = TA.RSI(data)
+    macd, macd_signal, macd_hist = abstract.MACD(data['Close'], fastperiod=12, slowperiod=26, signalperiod=9)
+    signals_df = data.loc[:,["Close"]]
+    signals_df['Signal'] = 0.0
+    signals_df['Buys'] = np.nan
+    signals_df['Sells'] = np.nan
+    signals_df['Portfolio Holdings'] = initial_capital
+    signals_df['Net Profit/Loss'] = 0.0
+    signals_df['Entry/Exit'] = np.nan
 
-# In[ ]:
+    for i in range(1, len(data)):
+        if strategy == 'RSI':
+            if rsi[i] < 30:
+                signals_df.loc[i, 'Signal'] = 1.0
+                signals_df.loc[i, 'Buys'] = data.loc[i, 'Close']
+                # calculate the portfolio holdings for each buy
+                signals_df.loc[i, 'Portfolio Holdings'] = signals_df.loc[i-1, 'Portfolio Holdings'] - (share_size * data.loc[i, 'Close'])
+            elif rsi[i] > 70:
+                signals_df.loc[i, 'Signal'] = -1.0
+                signals_df.loc[i, 'Sells'] = data.loc[i, 'Close']
+                # calculate the net profit/loss for each sell
+                signals_df.loc[i, 'Net Profit/Loss'] = (share_size * data.loc[i, 'Close']) - (share_size * data.loc[i-1, 'Close'])
+                signals_df.loc[i, 'Portfolio Holdings'] = signals_df.loc[i-1, 'Portfolio Holdings'] + signals_df.loc[i, 'Net Profit/Loss']
 
+    # Identify trade entry (1) and exit (-1) points
+    signals_df['Entry/Exit'] = signals_df['Signal'].diff()
+    st.write(signals_df)
 
-
+backtest(data, strategy)
 
