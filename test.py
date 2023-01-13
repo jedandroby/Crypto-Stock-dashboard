@@ -7,6 +7,9 @@ import pandas as pd
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+from prophet import Prophet
+from prophet.plot import plot_plotly
+
 
 
 
@@ -237,23 +240,87 @@ def monsim():
     monte_carlo_sim(data)
 
 
-
     st.write("Disclaimer")
     st.caption("""The values that are displayed in this dashboard are solely there for the purpose of knowledge and education. This in no
         way is financial advice, and we strongly recommend to take into account many other factors before entering a trade. With that being said,
         we hope you found this information helpful, and we wish you the best of luck on your trading endeavours!""")
 
 def intro ():
-    st.write('Hello World!')
-
+    st.title("Hi")
+    st.write('Welcome to our advanced financial platform, designed to provide you with the tools and insights you need to make informed investment decisions. Our platform combines cutting-edge predictive models, such as Monte Carlo simulations, machine learning, and algorithmic trading, with a wealth of historical market data, to provide unparalleled insights into the performance of a wide range of assets.'
+    "Our advanced models include a Monte Carlo asset predictor, a time series predictor, a backtesting feature for your trading indicators, and a logistic regression model. These tools allow you to test and optimize your investment strategies, as well as gain a deeper understanding of the underlying factors that affect asset prices."
+    "Whether you're a professional trader, a seasoned investor, or just starting out, our platform can help you make better-informed decisions. By providing you with the latest predictive tools and a wealth of historical data, our platform can give you the edge you need to succeed in today's fast-paced financial markets."
+    "Experience the difference that advanced predictive tools can make in your financial success. Sign up for our platform today and gain access to the insights and tools you need to make informed investment decisions.")
     
 def ML ():
     st.write('did this work?')
+
+def prop():
+# Forecasting
+    START = "2010-01-01"
+    TODAY = date.today().strftime("%Y-%m-%d")
+
+    st.title("Prophet Asset Predictor")
+
+    stocks = ("BTC-USD","LINK-USD","SOL-USD","MATIC-USD","MANA-USD","DOT-USD","AVAX-USD","XLM-USD","LTC-USD","XRP-USD","BNB-USD","UNI-USD","ETH-USD","ADA-USD","USDC-USD","BAT-USD")
+    selected_stocks = st.selectbox("Pick a coin for prediction",stocks)
+
+    n_days = st.slider("Days of Prediction:",1,7)
+    period = n_days * 365
+
+
+    @st.cache
+    def load_data(ticker):
+        data = yf.download(ticker,START,TODAY)
+        data.reset_index('Date',inplace=True)
+        data = pd.DataFrame(data)
+        return data
+
+    # data_load_state = st.text("Load data")
+    data = load_data(selected_stocks)
+    # data_load_state.text("Loading data")
+    st.subheader('Raw Data')
+    st.write(data.tail())
     
+    def plot_raw_data():
+        fig=go.Figure()
+        fig.add_trace(go.Scatter(x=data["Date"],y=data['Open'], name='stock_open'))
+        fig.add_trace(go.Scatter(x=data["Date"],y=data['Close'], name='stock_close'))
+        fig.layout.update(title_text='Time Series Data', xaxis_rangeslider_visible=True)
+        st.plotly_chart(fig)
+
+    plot_raw_data() 
+
+
+
+
+    df_train = data[["Date","Close"]]
+    df_train = df_train.rename(columns={"Date": "ds","Close": "y"})
+
+    m = Prophet()
+    m.fit(df_train)
+    future = m.make_future_dataframe(periods = period)
+    forecast = m.predict(future)
+    forecast.head()
+
+    st.subheader('Forecast data')
+    st.write(forecast.tail())
+    
+    st.write('Forecast data')
+    fig1= plot_plotly(m,forecast)
+    st.plotly_chart(fig1)
+
+    st.title('Forecast components')
+    fig2=m.plot_components(forecast)
+    st.write(fig2)
+
+# def Prophet ():
+
 page_names_to_funcs = {
     'Intro': intro,
-    "—": monsim,
-    'Machine learning algorithms':ML
+    "Monte Carlo Simulator": monsim,
+    'Machine learning algorithms':ML,
+    'Prophet':prop
 }
 
 demo_name = st.sidebar.selectbox("Choose a demo", page_names_to_funcs.keys())
