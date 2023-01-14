@@ -150,38 +150,116 @@ def execute_trade(data, strategy):
 
 execute_trade(data,selected_strategy)
 
+# initial_capital = st.number_input("Enter your initial trading capital: ")
+# share_size = st.number_input("Enter your initial share size: ")
+
+# def backtest(data, strategy, initial_capital, share_size):
+#     rsi = TA.RSI(data)
+#     signals_df = data.loc[:,["Close"]]
+#     signals_df['Signal'] = 0.0
+#     signals_df['Buys'] = np.nan
+#     signals_df['Sells'] = np.nan
+#     signals_df['Position'] = 0.0
+#     signals_df['Portfolio Holdings'] = initial_capital
+#     signals_df['Net Profit/Loss'] = 0.0
+#     signals_df['Entry/Exit'] = np.nan
+#     signals_df['Portfolio Cash'] = initial_capital
+#     signals_df['Portfolio Total'] = initial_capital
+#     signals_df['Portfolio Daily Returns'] = 0.0
+#     signals_df['Portfolio Cumulative Returns'] = 1.0
+
+#     if strategy == 'RSI':
+#         for i in range(1, len(data)):
+#             if rsi[i] < 30 and rsi[i-1] >= 30: 
+#                 # Buy condition
+#                 signals_df.loc[i, 'Signal'] = 1.0
+#                 signals_df.loc[i, 'Buys'] = data.loc[i, 'Close']
+#                 signals_df.loc[i, 'Position'] += share_size
+#                 signals_df.loc[i, 'Portfolio Holdings'] = signals_df.loc[i, 'Position'] * data.loc[i, 'Close']
+#                 signals_df.loc[i, 'Portfolio Cash'] = initial_capital - (signals_df.loc[i, 'Portfolio Holdings'])
+#             elif rsi[i] > 70 and rsi[i-1] <= 70: 
+#                 # Sell condition
+#                 signals_df.loc[i, 'Signal'] = -1.0
+#                 signals_df.loc[i, 'Sells'] = data.loc[i, 'Close']
+#                 signals_df.loc[i, 'Position'] -= share_size
+#                 signals_df.loc[i, 'Portfolio Holdings'] = signals_df.loc[i, 'Position'] * data.loc[i, 'Close']
+#                 signals_df.loc[i, 'Portfolio Cash'] = initial_capital - (signals_df.loc[i, 'Portfolio Holdings'])
+#                 signals_df.loc[i, 'Net Profit/Loss'] = (data.loc[i, 'Close'] - data.loc[i-1, 'Close']) * share_size
+#             else:
+#             # signals_df.loc[i, 'Signal'] = signals_df.loc[i-1, 'Signal']
+#                 signals_df.loc[i, 'Position'] = signals_df.loc[i-1, 'Position']
+#                 signals_df.loc[i, 'Portfolio Holdings'] = signals_df.loc[i-1, 'Portfolio Holdings']
+#                 signals_df.loc[i, 'Portfolio Cash'] = signals_df.loc[i-1, 'Portfolio Cash']
+#                 signals_df.loc[i, 'Net Profit/Loss'] = signals_df.loc[i-1, 'Net Profit/Loss']
+#         signals_df['Portfolio Total'] = signals_df['Portfolio Cash'] + signals_df['Portfolio Holdings']
+#         signals_df['Portfolio Daily Returns'] = signals_df['Portfolio Total'].pct_change()
+#         signals_df['Portfolio Cumulative Returns'] = (1 + signals_df['Portfolio Daily Returns']).cumprod() - 1
+#                 # st.write(signals_df)
+
+#     st.write(signals_df)
+
+# backtest(data, strategy, initial_capital, share_size)
 
 
-def backtest(data, strategy):
-    initial_capital = float(input("Enter your initial trading capital: "))
-    share_size = float(input("Enter your initial share size: "))
+
+def backtest_RSI(data, initial_capital, share_size):
+    # calculate RSI
     rsi = TA.RSI(data)
-    macd, macd_signal, macd_hist = abstract.MACD(data['Close'], fastperiod=12, slowperiod=26, signalperiod=9)
+    # create signals dataframe
     signals_df = data.loc[:,["Close"]]
     signals_df['Signal'] = 0.0
-    signals_df['Buys'] = np.nan
-    signals_df['Sells'] = np.nan
+    signals_df['Trade Type'] = np.nan
+    signals_df['Cost/Proceeds'] = np.nan
     signals_df['Portfolio Holdings'] = initial_capital
+    signals_df['Portfolio Cash'] = initial_capital
     signals_df['Net Profit/Loss'] = 0.0
-    signals_df['Entry/Exit'] = np.nan
+    # initialize previous price
+    previous_price = 0
+    # initialize share size and accumulated shares
+    accumulated_shares = 0
 
     for i in range(1, len(data)):
-        if strategy == 'RSI':
-            if rsi[i] < 30:
-                signals_df.loc[i, 'Signal'] = 1.0
-                signals_df.loc[i, 'Buys'] = data.loc[i, 'Close']
-                # calculate the portfolio holdings for each buy
-                signals_df.loc[i, 'Portfolio Holdings'] = signals_df.loc[i-1, 'Portfolio Holdings'] - (share_size * data.loc[i, 'Close'])
-            elif rsi[i] > 70:
-                signals_df.loc[i, 'Signal'] = -1.0
-                signals_df.loc[i, 'Sells'] = data.loc[i, 'Close']
-                # calculate the net profit/loss for each sell
-                signals_df.loc[i, 'Net Profit/Loss'] = (share_size * data.loc[i, 'Close']) - (share_size * data.loc[i-1, 'Close'])
-                signals_df.loc[i, 'Portfolio Holdings'] = signals_df.loc[i-1, 'Portfolio Holdings'] + signals_df.loc[i, 'Net Profit/Loss']
-
-    # Identify trade entry (1) and exit (-1) points
-    signals_df['Entry/Exit'] = signals_df['Signal'].diff()
+        # buy if RSI < 30
+        if rsi[i] < 30 and rsi[i-1] >= 30: 
+            # Buy condition
+            signals_df.loc[i, 'Signal'] = 1.0
+            signals_df.loc[i, 'Trade Type'] = "Buy"
+            # calculate the cost of the trade
+            cost = -(data.loc[i, 'Close'] * share_size)
+            signals_df.loc[i, 'Cost/Proceeds'] = (data.loc[i, 'Close'] * accumulated_shares)
+            # update portfolio cash and holdings
+            signals_df.loc[i, 'Portfolio Cash'] = signals_df.loc[i-1, 'Portfolio Cash'] + cost
+            signals_df.loc[i, 'Portfolio Holdings'] = signals_df.loc[i, 'Portfolio Cash']
+            # add the number of shares purchased to the accumulated shares
+            accumulated_shares += share_size
+        
+        # sell if RSI > 70
+        elif rsi[i] > 70 and rsi[i-1] <= 70: 
+            # Sell condition
+            signals_df.loc[i, 'Signal'] = -1.0
+            signals_df.loc[i, 'Trade Type'] = "Sell"
+            # calculate the proceeds of the trade
+            signals_df.loc[i, 'Cost/Proceeds'] = (data.loc[i, 'Close'] * accumulated_shares)
+            # update portfolio cash and holdings
+            signals_df.loc[i, 'Portfolio Cash'] = signals_df.loc[i-1, 'Portfolio Cash'] + (data.loc[i, 'Close'] * accumulated_shares)
+            signals_df.loc[i, 'Portfolio Holdings'] = signals_df.loc[i, 'Portfolio Cash']
+            # reset accumulated shares
+            accumulated_shares = 0
+        
+        # no signal if RSI between 30 and 70
+        else:
+            signals_df.loc[i, 'Signal'] = signals_df.loc[i-1, 'Signal']
+            signals_df.loc[i, 'Trade Type'] = signals_df.loc[i-1, 'Trade Type']
+            signals_df.loc[i, 'Cost/Proceeds'] = signals_df.loc[i-1, 'Cost/Proceeds']
+            signals_df.loc[i, 'Portfolio Holdings'] = signals_df.loc[i-1, 'Portfolio Holdings']
+            signals_df.loc[i, 'Portfolio Cash'] = signals_df.loc[i-1, 'Portfolio Cash']
+            signals_df.loc[i, 'Net Profit/Loss'] = signals_df.loc[i-1, 'Net Profit/Loss']
+# calculate net profit/loss
+    # signals_df['Net Profit/Loss'] = signals_df['Cost/Proceeds'].cumsum()
+    signals_df['Net Profit/Loss'] = signals_df['Portfolio Cash'] - initial_capital
+# calculate total profit/loss
+    total_profit_loss = round(signals_df["Cost/Proceeds"].sum(), 2)
+    st.write(f"The total profit/loss of the trading strategy is ${total_profit_loss}.")
     st.write(signals_df)
 
-backtest(data, strategy)
-
+backtest_RSI(data, 1000, 100)
