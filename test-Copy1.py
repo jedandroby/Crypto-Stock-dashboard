@@ -312,7 +312,8 @@ def ML ():
         return np.array(X), np.array(y)
 
     # use the last 30 days as a look-back period
-    look_back = 30
+    st.sidebar.title("Look Back Window")
+    look_back = int(st.sidebar.number_input("Enter the look back window:"))
     X, y = create_dataset(prices, look_back)
 
     # reshape the input to be 3D [samples, timesteps, features]
@@ -341,7 +342,7 @@ def ML ():
     model.compile(loss='mean_squared_error', optimizer='adam')
 
     # fit the model to the training data
-    model.fit(X_train, y_train, epochs=2, batch_size=1, verbose=2)
+    model.fit(X_train, y_train, epochs=5, batch_size=1, verbose=2)
 
     # use the model to make predictions on the test set
     y_pred = model.predict(X_test)
@@ -379,19 +380,17 @@ def ML ():
     st.plotly_chart(fig)
     #predict a month of price action
     # use the model to make predictions on the data for the next month
-    X_future = X[-30:]
+    X_future = X[-look_back:]
     # use the trained model to make predictions on the future data
     y_future= model.predict(X_future)
     # invert the predictions back to the original scale
     y_future = scaler.inverse_transform(y_future)
     
-    # st.write(y_future)
-
     # Get the current date
     now = datetime.datetime.now()
 
     # Create a list of dates for the next 30 days
-    date_list = [now + datetime.timedelta(days=x) for x in range(30)]
+    date_list = [now + datetime.timedelta(days=x) for x in range(look_back)]
 
     # Convert the date list to strings in the format 'YYYY-MM-DD'
     date_strings = [date.strftime('%Y-%m-%d') for date in date_list]
@@ -399,6 +398,13 @@ def ML ():
     y_future = pd.DataFrame(y_future, columns=['Predicted price'])
     y_future.index = date_strings['date']
 
+    
+    trace1 = go.Scatter(
+        x = data['Date'],
+        y = data['Close'],
+        mode = 'lines',
+        name = 'Actual Price'
+    )
     trace2 = go.Scatter(
         x = date_strings['date'],
         y = y_future['Predicted price'],
