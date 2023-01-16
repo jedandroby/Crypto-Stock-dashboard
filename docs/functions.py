@@ -22,36 +22,6 @@ from prophet import Prophet
 from prophet.plot import plot_plotly
 import plotly.graph_objects as go
 import ccxt
-# jupyter lab --NotebookApp.iopub_data_rate_limit=1.0e10 - this command is required to run when opening jupyter labs or ccxt wont work in jupyter. or configure a config file.
-import pandas as pd
-import hvplot.pandas
-# from dotenv import load_dotenv
-import alpaca_trade_api as tradeapi
-import os
-import sqlalchemy as sql
-import sys
-import numpy as np
-from MCForecastTools import MCSimulation
-from warnings import filterwarnings
-# import pandas_ta as ta
-from scipy.stats import norm
-import math
-import matplotlib.pyplot as plt
-import questionary
-filterwarnings("ignore")
-import ccxt
-# jupyter lab --NotebookApp.iopub_data_rate_limit=1.0e10 - this command is required to run when opening jupyter labs or ccxt wont work in jupyter. or configure a config file.
-import pandas as pd
-import hvplot.pandas
-# from dotenv import load_dotenv
-import alpaca_trade_api as tradeapi
-import os
-import sqlalchemy as sql
-import sys
-import questionary
-from MCForecastTools import MCSimulation
-from warnings import filterwarnings
-filterwarnings("ignore")
 
 def get_data_crypto():
     '''
