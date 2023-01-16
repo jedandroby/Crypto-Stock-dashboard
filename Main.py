@@ -10,13 +10,12 @@ import math
 import matplotlib.pyplot as plt
 from prophet import Prophet
 from prophet.plot import plot_plotly
+from PIL import Image
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
-
-
 
 
 
@@ -252,11 +251,33 @@ def monsim():
         we hope you found this information helpful, and we wish you the best of luck on your trading endeavours!""")
 
 def intro ():
-    st.title("Hi")
+    image = Image.open('logo.jpg')
+    st.image(image, width = 750)
+    st.title("Crypto App")
     st.write('Welcome to our advanced financial platform, designed to provide you with the tools and insights you need to make informed investment decisions. Our platform combines cutting-edge predictive models, such as Monte Carlo simulations, machine learning, and algorithmic trading, with a wealth of historical market data, to provide unparalleled insights into the performance of a wide range of assets.'
     "Our advanced models include a Monte Carlo asset predictor, a time series predictor, a backtesting feature for your trading indicators, and a logistic regression model. These tools allow you to test and optimize your investment strategies, as well as gain a deeper understanding of the underlying factors that affect asset prices."
     "Whether you're a professional trader, a seasoned investor, or just starting out, our platform can help you make better-informed decisions. By providing you with the latest predictive tools and a wealth of historical data, our platform can give you the edge you need to succeed in today's fast-paced financial markets."
     "Experience the difference that advanced predictive tools can make in your financial success. Sign up for our platform today and gain access to the insights and tools you need to make informed investment decisions.")
+    st.title("Pick a coin for Analisys")
+
+    stocks = ("BTC-USD","LINK-USD","SOL-USD","MATIC-USD","MANA-USD","DOT-USD","AVAX-USD","XLM-USD","LTC-USD","XRP-USD","BNB-USD","UNI-USD","ETH-USD","ADA-USD","USDC-USD","BAT-USD")
+    dropdown = st.multiselect('Pick your coin',stocks)
+
+    start = st.date_input('Start',value=pd.to_datetime("2010-01-01"))
+    end = st.date_input('End', value=pd.to_datetime('today'))
+
+    def relativeret(df):
+        rel = df.pct_change()
+        cumret = (1+rel).cumprod() - 1
+        cumret = cumret.fillna(0)
+        return cumret
+    
+
+    if len(dropdown) > 0:
+        df = relativeret(yf.download(dropdown,start,end)['Close'])
+        st.header('Return of {}' .format(dropdown))
+        st.line_chart(df)
+
     
 def ML ():
     START = "2010-01-01"
@@ -415,9 +436,7 @@ def ML ():
     st.plotly_chart(fig)
     st.write(y_future)
     
-    
-    
-    
+
 def prop():
 # Forecasting
     START = "2010-01-01"
@@ -477,10 +496,12 @@ def prop():
     fig2=m.plot_components(forecast)
     st.write(fig2)
 
+
+
 page_names_to_funcs = {
     'Intro': intro,
     "Monte Carlo Simulator": monsim,
-    'Machine learning algorithms':ML,
+    'Long Short-Term Memory Predictor':ML,
     'Prophet':prop
 }
 
