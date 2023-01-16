@@ -246,14 +246,191 @@ def monsim():
         we hope you found this information helpful, and we wish you the best of luck on your trading endeavours!""")
 
 def intro ():
-    st.title("Hi")
+    image = Image.open('logo.jpg')
+    st.image(image, width = 750)
+    st.title("Crypto App")
     st.write('Welcome to our advanced financial platform, designed to provide you with the tools and insights you need to make informed investment decisions. Our platform combines cutting-edge predictive models, such as Monte Carlo simulations, machine learning, and algorithmic trading, with a wealth of historical market data, to provide unparalleled insights into the performance of a wide range of assets.'
     "Our advanced models include a Monte Carlo asset predictor, a time series predictor, a backtesting feature for your trading indicators, and a logistic regression model. These tools allow you to test and optimize your investment strategies, as well as gain a deeper understanding of the underlying factors that affect asset prices."
     "Whether you're a professional trader, a seasoned investor, or just starting out, our platform can help you make better-informed decisions. By providing you with the latest predictive tools and a wealth of historical data, our platform can give you the edge you need to succeed in today's fast-paced financial markets."
     "Experience the difference that advanced predictive tools can make in your financial success. Sign up for our platform today and gain access to the insights and tools you need to make informed investment decisions.")
+    st.title("Pick a coin for Analisys")
+
+    stocks = ("BTC-USD","LINK-USD","SOL-USD","MATIC-USD","MANA-USD","DOT-USD","AVAX-USD","XLM-USD","LTC-USD","XRP-USD","BNB-USD","UNI-USD","ETH-USD","ADA-USD","USDC-USD","BAT-USD")
+    dropdown = st.multiselect('Pick your coin',stocks)
+
+    start = st.date_input('Start',value=pd.to_datetime("2010-01-01"))
+    end = st.date_input('End', value=pd.to_datetime('today'))
+
+    def relativeret(df):
+        rel = df.pct_change()
+        cumret = (1+rel).cumprod() - 1
+        cumret = cumret.fillna(0)
+        return cumret
+    
+
+    if len(dropdown) > 0:
+        df = relativeret(yf.download(dropdown,start,end)['Close'])
+        st.header('Return of {}' .format(dropdown))
+        st.line_chart(df)
+
     
 def ML ():
-    st.write('did this work?')
+     START = "2010-01-01"
+    TODAY = date.today().strftime("%Y-%m-%d")
+
+    st.title("LSTM (Long Short-Term Memory) Predictor")
+
+    stocks = ("BTC-USD","LINK-USD","SOL-USD","MATIC-USD","MANA-USD","DOT-USD","AVAX-USD","XLM-USD","LTC-USD","XRP-USD","BNB-USD","UNI-USD","ETH-USD","ADA-USD","USDC-USD","BAT-USD")
+    selected_stocks = st.selectbox("Pick a coin for prediction",stocks)
+
+    # n_years = st.slider("Years of Prediction:",1,15)
+    # period = n_years * 365
+
+
+    @st.cache
+    def load_data(ticker):
+        data = yf.download(ticker,START,TODAY)
+        data.reset_index('Date',inplace=True)
+        data = pd.DataFrame(data)
+        return data
+
+    # data_load_state = st.text("Load data")
+    data = load_data(selected_stocks)
+    # data_load_state.text("Loading data")
+
+    st.subheader("Asset Data Head")
+    st.write(data.head())
+    st.subheader('Asset Data Tail')
+    st.write(data.tail())
+    st.subheader("Interactive Asset Chart")
+    def plot_raw_data():
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=data['Date'],y=data['Open'],name='Coin Open'))
+        fig.add_trace(go.Scatter(x=data['Date'],y=data['Close'],name='Coin Close'))
+        fig.layout.update(xaxis_rangeslider_visible=True)
+        st.plotly_chart(fig)
+
+    plot_raw_data()
+    # Forecasting
+    # extract the close prices
+    prices = data['Close'].values
+
+    # normalize the data
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    prices = scaler.fit_transform(prices.reshape(-1, 1))
+
+    # create a time series dataset
+    def create_dataset(prices, look_back=1):
+        X, y = [], []
+        for i in range(len(prices)-look_back-1):
+            X.append(prices[i:(i+look_back), 0])
+            y.append(prices[i + look_back, 0])
+        return np.array(X), np.array(y)
+
+    # use the last 30 days as a look-back period
+    st.sidebar.title("Look Back Window")
+    look_back = int(st.sidebar.number_input("Enter the look back window:"))
+    X, y = create_dataset(prices, look_back)
+
+    # reshape the input to be 3D [samples, timesteps, features]
+    X = np.reshape(X, (X.shape[0], 1, X.shape[1]))
+
+    # split the data into train and test sets
+    train_size = int(len(X) * 0.8)
+    test_size = len(X) - train_size
+    X_train, X_test = X[0:train_size,:], X[train_size:len(X),:]
+    y_train, y_test = y[0:train_size], y[train_size:len(y)]
+    # get the data rdy to plot for later
+    close_data = prices.reshape((-1,1))
+
+    split_percent = 0.80
+    split = int(split_percent*len(close_data))
+
+    date_test = data['Date'][split:]
+
+    # st.write(len(close_train))
+    # st.write(close_test)
+
+    # create the LSTM model
+    model = Sequential()
+    model.add(LSTM(12, input_shape=(X_train.shape[1], X_train.shape[2])))
+    model.add(Dense(1))
+    model.compile(loss='mean_squared_error', optimizer='adam')
+
+    # fit the model to the training data
+    model.fit(X_train, y_train, epochs=5, batch_size=1, verbose=2)
+
+    # use the model to make predictions on the test set
+    y_pred = model.predict(X_test)
+
+    # invert the predictions and true values back to the original scale
+    y_pred = scaler.inverse_transform(y_pred)
+    y_test = scaler.inverse_transform(y_test.reshape(-1, 1))
+
+    # evaluate the model
+    test_score = model.evaluate(X_test, y_test, verbose=0)
+
+    # in streamlit app
+    # st.write("Mean Squared Error: ",test_score)
+    prediction = y_pred.reshape((-1))
+    
+    trace1 = go.Scatter(
+        x = data['Date'],
+        y = data['Close'],
+        mode = 'lines',
+        name = 'Actual Price'
+    )
+    trace2 = go.Scatter(
+        x = date_test,
+        y = prediction,
+        mode = 'lines',
+        name = 'Prediction'
+    )
+
+    layout = go.Layout(
+        title = "Real price vs Model train/test predictions ",
+        xaxis = {'title' : "Date"},
+        yaxis = {'title' : "Close"}
+    )
+    fig = go.Figure(data=[trace1,trace2], layout=layout)
+    st.plotly_chart(fig)
+    #predict a month of price action
+    # use the model to make predictions on the data for the next month
+    X_future = X[-look_back:]
+    # use the trained model to make predictions on the future data
+    y_future= model.predict(X_future)
+    # invert the predictions back to the original scale
+    y_future = scaler.inverse_transform(y_future)
+    
+    # Get the current date
+    now = datetime.datetime.now()
+
+    # Create a list of dates for the next 30 days
+    date_list = [now + datetime.timedelta(days=x) for x in range(look_back)]
+
+    # Convert the date list to strings in the format 'YYYY-MM-DD'
+    date_strings = [date.strftime('%Y-%m-%d') for date in date_list]
+    date_strings = pd.DataFrame(date_strings, columns=['date'])
+    y_future = pd.DataFrame(y_future, columns=['Predicted price'])
+    y_future.index = date_strings['date']
+
+    
+    trace1 = go.Scatter(
+        x = data['Date'],
+        y = data['Close'],
+        mode = 'lines',
+        name = 'Actual Price'
+    )
+    trace2 = go.Scatter(
+        x = date_strings['date'],
+        y = y_future['Predicted price'],
+        mode = 'lines',
+        name = 'Predicted Data'
+    )
+    fig= go.Figure(data=[trace2, trace1], layout=layout)
+    st.plotly_chart(fig)
+    st.write(y_future)
+    
 
 def prop():
 # Forecasting
@@ -314,12 +491,12 @@ def prop():
     fig2=m.plot_components(forecast)
     st.write(fig2)
 
-# def Prophet ():
+
 
 page_names_to_funcs = {
     'Intro': intro,
     "Monte Carlo Simulator": monsim,
-    'Machine learning algorithms':ML,
+    'Long Short-Term Memory Predictor':ML,
     'Prophet':prop
 }
 
