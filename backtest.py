@@ -201,10 +201,22 @@ execute_trade(data,selected_strategy)
 # backtest(data, strategy, initial_capital, share_size)
 
 
+# Using object notation
+initial_capital = st.sidebar.selectbox(
+    "How much money would you like to invest?",
+    ("10",'20',"100",'200','300','400')
+)
+share_size = st.sidebar.selectbox(
+    "How many shares would you like to purchase on each buy signal?",
+    ("10",'20',"100",'200','300','400')
+)
 
 def backtest_RSI(data, initial_capital, share_size):
+    initial_capital = int(initial_capital)
+    share_size = int(share_size)
     # calculate RSI
     rsi = TA.RSI(data)
+    data = data
     # create signals dataframe
     signals_df = data.loc[:,["Close"]]
     signals_df['Signal'] = 0.0
@@ -217,16 +229,17 @@ def backtest_RSI(data, initial_capital, share_size):
     previous_price = 0
     # initialize share size and accumulated shares
     accumulated_shares = 0
-
+    invested_capital = 0
+    roi = 0
     for i in range(1, len(data)):
-        # buy if RSI < 30
-        if rsi[i] < 30 and rsi[i-1] >= 30: 
+    # buy if RSI < 30
+        if rsi[i] < 30: 
             # Buy condition
             signals_df.loc[i, 'Signal'] = 1.0
             signals_df.loc[i, 'Trade Type'] = "Buy"
             # calculate the cost of the trade
             cost = -(data.loc[i, 'Close'] * share_size)
-            signals_df.loc[i, 'Cost/Proceeds'] = (data.loc[i, 'Close'] * accumulated_shares)
+            signals_df.loc[i, 'Cost/Proceeds'] = cost
             # update portfolio cash and holdings
             signals_df.loc[i, 'Portfolio Cash'] = signals_df.loc[i-1, 'Portfolio Cash'] + cost
             signals_df.loc[i, 'Portfolio Holdings'] = signals_df.loc[i, 'Portfolio Cash']
@@ -234,19 +247,20 @@ def backtest_RSI(data, initial_capital, share_size):
             accumulated_shares += share_size
         
         # sell if RSI > 70
-        elif rsi[i] > 70 and rsi[i-1] <= 70: 
+        elif rsi[i] > 70: 
             # Sell condition
             signals_df.loc[i, 'Signal'] = -1.0
             signals_df.loc[i, 'Trade Type'] = "Sell"
             # calculate the proceeds of the trade
-            signals_df.loc[i, 'Cost/Proceeds'] = (data.loc[i, 'Close'] * accumulated_shares)
+            proceeds = (data.loc[i, 'Close'] * accumulated_shares)
+            signals_df.loc[i, 'Cost/Proceeds'] = proceeds
             # update portfolio cash and holdings
-            signals_df.loc[i, 'Portfolio Cash'] = signals_df.loc[i-1, 'Portfolio Cash'] + (data.loc[i, 'Close'] * accumulated_shares)
+            signals_df.loc[i, 'Portfolio Cash'] = signals_df.loc[i-1, 'Portfolio Cash'] + proceeds
             signals_df.loc[i, 'Portfolio Holdings'] = signals_df.loc[i, 'Portfolio Cash']
             # reset accumulated shares
             accumulated_shares = 0
-        
-        # no signal if RSI between 30 and 70
+            
+            # no signal if RSI between 30 and 70
         else:
             signals_df.loc[i, 'Signal'] = signals_df.loc[i-1, 'Signal']
             signals_df.loc[i, 'Trade Type'] = signals_df.loc[i-1, 'Trade Type']
@@ -254,12 +268,25 @@ def backtest_RSI(data, initial_capital, share_size):
             signals_df.loc[i, 'Portfolio Holdings'] = signals_df.loc[i-1, 'Portfolio Holdings']
             signals_df.loc[i, 'Portfolio Cash'] = signals_df.loc[i-1, 'Portfolio Cash']
             signals_df.loc[i, 'Net Profit/Loss'] = signals_df.loc[i-1, 'Net Profit/Loss']
-# calculate net profit/loss
-    # signals_df['Net Profit/Loss'] = signals_df['Cost/Proceeds'].cumsum()
-    signals_df['Net Profit/Loss'] = signals_df['Portfolio Cash'] - initial_capital
-# calculate total profit/loss
-    total_profit_loss = round(signals_df["Cost/Proceeds"].sum(), 2)
-    st.write(f"The total profit/loss of the trading strategy is ${total_profit_loss}.")
-    st.write(signals_df)
 
-backtest_RSI(data, 1000, 100)
+                
+                # Calculate the return on investment (ROI)
+                
+
+                
+                
+    
+# calculate net profit/loss
+    signals_df['Net Profit/Loss'] = signals_df['Portfolio Cash'] - initial_capital
+    # calculate total profit/loss
+    total_profit_loss = round(signals_df["Net Profit/Loss"].iloc[-1], 2)
+    st.write(f"The total profit/loss of the trading strategy is ${total_profit_loss}.")
+              # Print the ROI
+    invested_capital = invested_capital + abs(signals_df["Cost/Proceeds"].sum())
+    roi = round((total_profit_loss / -(invested_capital)) * 100, 2)
+    st.write(f"The trading algorithm resulted in a return on investment of {roi}%")
+backtest_RSI(data, initial_capital, share_size)
+
+
+
+
