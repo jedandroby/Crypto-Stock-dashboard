@@ -1,4 +1,3 @@
-
 import streamlit as st
 from datetime import date
 import datetime
@@ -21,6 +20,8 @@ sys.path.append('docs')
 from functions import get_data_yahoo
 from functions import analyze_data
 from functions import monte_carlo_sim
+from functions import LSTM_model
+
 
 def monsim():
     START = "2010-01-01"
@@ -35,8 +36,7 @@ def monsim():
 
     # run simulation with function from functions.py 
     monte_carlo_sim(data)
-
-
+    
     st.write("Disclaimer")
     st.caption("""The values that are displayed in this dashboard are solely there for the purpose of knowledge and education. This in no
         way is financial advice, and we strongly recommend to take into account many other factors before entering a trade. With that being said,
@@ -77,130 +77,20 @@ def ML ():
 
     st.title("LSTM (Long Short-Term Memory) Predictor")
     data = get_data_yahoo(START, TODAY)
-    
-    
-    # Forecasting
-    # extract the close prices
-    prices = data['Close'].values
 
-    # normalize the data
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    prices = scaler.fit_transform(prices.reshape(-1, 1))
-
-    # create a time series dataset
-    def create_dataset(prices, look_back=3):
-        X, y = [], []
-        for i in range(len(prices)-look_back-1):
-            X.append(prices[i:(i+look_back), 0])
-            y.append(prices[i + look_back, 0])
-        return np.array(X), np.array(y)
-
-    # use the the user to select how many days as a look-back period
+    # ask the the user to select variables for model - lookback, neruons, epochs
     st.sidebar.title("Look Back Window")
     look_back = int(st.sidebar.slider("How many days do you want to predict:",1,150))
-    # create x,y data sets
-    X, y = create_dataset(prices, look_back)
-
-    # reshape the input to be 3D [samples, timesteps, features]
-    X = np.reshape(X, (X.shape[0], 1, X.shape[1]))
-
-    # split the data into train and test sets
-    train_size = int(len(X) * 0.8)
-    test_size = len(X) - train_size
-    X_train, X_test = X[0:train_size,:], X[train_size:len(X),:]
-    y_train, y_test = y[0:train_size], y[train_size:len(y)]
-    # get the data rdy to plot for later
-    close_data = prices.reshape((-1,1))
-
-    split_percent = 0.80
-    split = int(split_percent*len(close_data))
-
-    date_test = data['Date'][split:]
-
-    # st.write(len(close_train))
-    # st.write(close_test)
     st.sidebar.title("Amount of Neurons")
-    neurons = int(st.sidebar.slider("How many neurons do you want", 4,30))
-    # create the LSTM model
-    model = Sequential()
-    model.add(LSTM(neurons, input_shape=(X_train.shape[1], X_train.shape[2])))
-    model.add(Dense(1))
-    model.compile(loss='mean_squared_error', optimizer='adam')
+    neurons = int(st.sidebar.slider("How many neurons do you want", 6,64))
     st.sidebar.title('Amount of Epochs')
-    epoch= int(st.sidebar.slider('How many Epochs do you want to run through?(The higher the number, the longer it will take)',1,10))
-    # fit the model to the training data
-    model.fit(X_train, y_train, epochs=epoch, batch_size=1, verbose=2)
-
-    # use the model to make predictions on the test set
-    y_pred = model.predict(X_test)
-
-    # invert the predictions and true values back to the original scale
-    y_pred = scaler.inverse_transform(y_pred)
-    y_test = scaler.inverse_transform(y_test.reshape(-1, 1))
-
-    # evaluate the model
-    test_score = model.evaluate(X_test, y_test, verbose=0)
-
-    # in streamlit app
-    # st.write("Mean Squared Error: ",test_score)
-    prediction = y_pred.reshape((-1))
-
-    trace1 = go.Scatter(
-        x = data['Date'],
-        y = data['Close'],
-        mode = 'lines',
-        name = 'Actual Price'
-    )
-    trace2 = go.Scatter(
-        x = date_test,
-        y = prediction,
-        mode = 'lines',
-        name = 'Prediction'
-    )
-
-    layout = go.Layout(
-        title = "Real price vs Model train/test predictions ",
-        xaxis = {'title' : "Date"},
-        yaxis = {'title' : "Close"}
-    )
-    fig = go.Figure(data=[trace1,trace2], layout=layout)
-    st.plotly_chart(fig)
-    #predict a month of price action
-    # use the model to make predictions on the data for the next month
-    X_future = X[-look_back:]
-    # use the trained model to make predictions on the future data
-    y_future= model.predict(X_future)
-    # invert the predictions back to the original scale
-    y_future = scaler.inverse_transform(y_future)
+    epoch = int(st.sidebar.slider('How many Epochs do you want to run through?(The higher the number, the longer it will take)',1,10))
+    st.sidebar.title('Train/test split size')
+    test_split = float(st.sidebar.slider('What percent do you want the model to train and validate on?', 0.75,0.95))
     
-    # Get the current date
-    now = datetime.datetime.now()
-
-    # Create a list of dates for the next 30 days
-    date_list = [now + datetime.timedelta(days=x) for x in range(look_back)]
-
-    # Convert the date list to strings in the format 'YYYY-MM-DD'
-    date_strings = [date.strftime('%Y-%m-%d') for date in date_list]
-    date_strings = pd.DataFrame(date_strings, columns=['date'])
-    y_future = pd.DataFrame(y_future, columns=['Predicted price'])
-    y_future.index = date_strings['date']
-
-    
-    trace1 = go.Scatter(
-        x = data['Date'],
-        y = data['Close'],
-        mode = 'lines',
-        name = 'Actual Price'
-    )
-    trace2 = go.Scatter(
-        x = date_strings['date'],
-        y = y_future['Predicted price'],
-        mode = 'lines',
-        name = 'Predicted Data'
-    )
-    fig= go.Figure(data=[trace2, trace1], layout=layout)
-    st.plotly_chart(fig)
-    st.write(y_future)
+    if st.sidebar.button('Predict'):
+        with st.spinner('Wait for it...'):    
+            LSTM_model(look_back, neurons, epoch, data, test_split)
     
 
 def prop():
@@ -210,6 +100,7 @@ def prop():
 
     st.title("Prophet Asset Predictor")
     data = get_data_yahoo(START, TODAY)
+    
     st.sidebar.title('How many days do you want to predict?')
     n_days = int(st.sidebar.slider("Days of Prediction:",1,7))
     period = n_days * 365

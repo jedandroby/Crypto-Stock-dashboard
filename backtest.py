@@ -196,11 +196,11 @@ def stats(strategy):
                 # RSI strategy
                 if strategy == 'RSI':
                     if rsi[i] < 30:
-                        buy_indices.append(i)
+                        buy_indices.append(data.loc[i, 'Date'])
                         buy_closes.append(data.loc[i, 'Close'])
                 
                     elif rsi[i] > 70:
-                        sell_indices.append(i)
+                        sell_indices.append(data.loc[i, 'Date'])
                         sell_closes.append(data.loc[i, 'Close'])
             # create signals dataframe
             signals_df = data.loc[:,["Close"]]
@@ -220,9 +220,21 @@ def stats(strategy):
             sell_indices = pd.Series(sell_indices)
             sell_closes = pd.Series(sell_closes)
            
-            buy_df = pd.concat([sell_closes, buy_closes], axis=1)
-            buy_df = buy_df.rename(columns={0: "Sell Closes", 1: "Buy Closes"})
-            buy_df = pd.DataFrame(buy_df, columns= ['Buy'])
+            buy_df = pd.DataFrame(buy_closes)
+            buy_df.index = buy_indices
+            
+            sell_df=pd.DataFrame(sell_closes)
+            sell_df.index= sell_indices
+            
+            df1 = pd.concat([buy_df, sell_df], axis=1, keys=['buy', 'sell'])
+            # df1['group'] = df1.index.to_series().groupby(df1.index.to_series().diff().ne(0).cumsum()).cumcount()
+            # df1 = df1.pivot(columns='group', values=['buy', 'sell'])
+            # df1.columns = ['buy', 'sell']
+            st.write(df1)
+            
+
+
+
             # buy_df.set_index("Date", inplace=True)
             # sell_df = pd.concat([sell_indices, sell_closes], axis=1)
             # sell_df.set_index("Date", inplace=True)
@@ -299,10 +311,10 @@ def stats(strategy):
             for i in range(1, len(data)):
                 if strategy == 'MACD':
                     if macd[i] < macd_signal[i]:
-                        buy_indices.append(i)
+                        buy_indices.append(data.loc[i, 'Date'])
                         buy_closes.append(data.loc[i, 'Close'])
                     elif macd[i] > macd_signal[i]:
-                        sell_indices.append(i)
+                        sell_indices.append(data.loc[i, 'Date'])
                         sell_closes.append(data.loc[i, 'Close'])
             buy_indices = pd.Series(buy_indices)
             buy_closes = pd.Series(buy_closes)

@@ -246,6 +246,7 @@ def monte_carlo_sim(data):
 def get_data_yahoo (START, TODAY):
     stocks = ("BTC-USD","LINK-USD","SOL-USD","MATIC-USD","MANA-USD","DOT-USD","AVAX-USD","XLM-USD","LTC-USD","XRP-USD","BNB-USD","UNI-USD","ETH-USD","ADA-USD","USDC-USD","BAT-USD")
     selected_ticker = st.selectbox("Pick a coin for prediction",stocks)
+    @st.cache
     def load_data(selected_ticker):
         data = yf.download(selected_ticker,START,TODAY)
         data.reset_index('Date',inplace=True)
@@ -266,4 +267,127 @@ def get_data_yahoo (START, TODAY):
     plot_raw_data()
     return data
 
+    
+def LSTM_model(look_back, neurons, epoch, data, test_split):
+       
+    # create a time series dataset
+    def create_dataset(prices, look_back=3):
+        X, y = [], []
+        for i in range(len(prices)-look_back-1):
+            X.append(prices[i:(i+look_back), 0])
+            y.append(prices[i + look_back, 0])
+        return np.array(X), np.array(y)
+    # Forecasting
+    # extract the close prices
+    prices = data['Close'].values
+
+    # normalize the data
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    prices = scaler.fit_transform(prices.reshape(-1, 1))
+    
+    # create x,y data sets
+    X, y = create_dataset(prices, look_back)
+    
+    # reshape the input to be 3D [samples, timesteps, features]
+    X = np.reshape(X, (X.shape[0], 1, X.shape[1]))
+
+    # split the data into train and test sets
+    train_size = int(len(X) * test_split)
+    test_size = len(X) - train_size
+    X_train, X_test = X[0:train_size,:], X[train_size:len(X),:]
+    y_train, y_test = y[0:train_size], y[train_size:len(y)]
+    # get the data rdy to plot for later
+    close_data = prices.reshape((-1,1))
+
+    split_percent = test_split
+    split = int(split_percent*len(close_data))
+
+    date_test = data['Date'][split:]
+    
+    # create the LSTM model
+    model = Sequential()
+    model.add(LSTM(neurons, input_shape=(X_train.shape[1], X_train.shape[2])))
+    model.add(Dense((neurons/2), activation='relu'))
+    model.add(Dense(1))
+    model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mean_absolute_error'])
+    # fit the model to the training data
+    model.fit(X_train, y_train, epochs=epoch, batch_size=1, verbose=2)
+
+    # use the model to make predictions on the test set
+    y_pred = model.predict(X_test)
+
+    # invert the predictions and true values back to the original scale
+    y_pred = scaler.inverse_transform(y_pred)
+    y_test = scaler.inverse_transform(y_test.reshape(-1, 1))
+
+    # evaluate the model
+    test_score = model.evaluate(X_test, y_test, verbose=0)
+
+    # in streamlit app
+    # st.write("Mean Squared Error: ",test_score)
+    prediction = y_pred.reshape((-1))
+
+    trace1 = go.Scatter(
+        x = data['Date'],
+        y = data['Close'],
+        mode = 'lines',
+        name = 'Actual Price'
+    )
+    trace2 = go.Scatter(
+        x = date_test,
+        y = prediction,
+        mode = 'lines',
+        name = 'Prediction'
+    )
+
+    layout = go.Layout(
+        title = "Real price vs Model train/test predictions ",
+        xaxis = {'title' : "Date"},
+        yaxis = {'title' : "Close"}
+    )
+    fig = go.Figure(data=[trace1,trace2], layout=layout)
+    st.plotly_chart(fig)
+    #predict a month of price action
+    # use the model to make predictions on the data for the next month
+    X_future = X[-look_back:]
+    # use the trained model to make predictions on the future data
+    y_future= model.predict(X_future)
+    # invert the predictions back to the original scale
+    y_future = scaler.inverse_transform(y_future)
+    
+    # Get the current date
+    now = datetime.datetime.now()
+
+    # Create a list of dates for the next x days
+    date_list = [now + datetime.timedelta(days=x) for x in range(look_back)]
+
+    # Convert the date list to strings in the format 'YYYY-MM-DD'
+    date_strings = [date.strftime('%Y-%m-%d') for date in date_list]
+    date_strings = pd.DataFrame(date_strings, columns=['date'])
+    y_future = pd.DataFrame(y_future, columns=['Predicted price'])
+    y_future.index = date_strings['date']
+
+    
+    trace1 = go.Scatter(
+        x = data['Date'],
+        y = data['Close'],
+        mode = 'lines',
+        name = 'Actual Price'
+    )
+    trace2 = go.Scatter(
+        x = date_strings['date'],
+        y = y_future['Predicted price'],
+        mode = 'lines',
+        name = 'Predicted Data'
+    )
+    layout2 = go.Layout(
+        title = "Real price + Model future price predictions ",
+        xaxis = {'title' : "Date"},
+        yaxis = {'title' : "Close"}
+    )
+    fig= go.Figure(data=[trace2, trace1], layout=layout2)
+    st.plotly_chart(fig)
+    expected_price=y_future.iloc[-1,-1]
+    # expected_price=expected_price.values
+    st.write(f'in {look_back} days the model predicts the price to be around ${expected_price}')
     
