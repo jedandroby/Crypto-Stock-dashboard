@@ -232,61 +232,70 @@ def stats(strategy):
             # df1.columns = ['buy', 'sell']
             st.write(df1)
             df2 = pd.DataFrame()
-
-            # create a column to store the previous signal
-            df1['prev_signal'] = df1['buy'].shift(1)
-
+            prev_signal = None
+            flag = None
             # iterate through the rows of the dataframe
             for i, row in df1.iterrows():
-                # if the current signal is different from the previous signal, append it to the new dataframe
-                if row['buy'] != row['prev_signal']:
-                    df2 = df2.append({'Date': i, 'Signal': 'Buy', 'Price': row['buy']}, ignore_index=True)
-                elif row['sell'] != row['prev_signal']:
-                    df2 = df2.append({'Date': i, 'Signal': 'Sell', 'Price': row['sell']}, ignore_index=True)
-
+                if flag == 'buy':
+                    if row['sell'].notna().any():
+                        df2 = df2.append({'Date': i, 'Signal': 'Sell', 'Price': row['sell'].values}, ignore_index=True)
+                        flag = 'sell'
+                else:
+                    if row['buy'].notna().any():
+                        df2 = df2.append({'Date': i, 'Signal': 'Buy', 'Price': row['buy'].values}, ignore_index=True)
+                        flag = 'buy'
+            
+            def convert_to_float(x):
+                return round(float(x), 2)
+            df2['Price'] = df2['Price'].apply(convert_to_float)
             st.write(df2)
+
+
+
                  
             # buy_df.set_index("Date", inplace=True)
             # sell_df = pd.concat([sell_indices, sell_closes], axis=1)
             # sell_df.set_index("Date", inplace=True)
-            
+            df2['Total Cost'] = 0.0
+            df2['Total Revenue'] = 0.0
             initial_capital = int(initial_capital)
             share_size = int(share_size)
-
-            for i in range(1, len(buy_df)):
+            
+            for i in range(0, len(df2)):
                 # buy if RSI < 30
-                if buy_df.loc[i, 'Buy Closes'] > 1: 
+                if df2.loc[i, 'Signal'] == 'Buy': 
                     # Buy condition
-                    signals_df.loc[i, 'Signal'] = 1.0
-                    signals_df.loc[i, 'Trade Type'] = "Buy"
+                    # signals_df.loc[i, 'Signal'] = 1.0
+                    # signals_df.loc[i, 'Trade Type'] = "Buy"
                     # calculate the cost of the trade
-                    cost = -(data.loc[i, 'Close'] * share_size)
-                    signals_df.loc[i, 'Total Cost'] += cost
+                    cost = -(df2.loc[i, 'Price'] * share_size)
+                    df2.loc[i, 'Total Cost'] += cost
                     # add the number of shares purchased to the accumulated shares
-                    accumulated_shares += share_size
+                    # accumulated_shares += share_size
                 
                 # sell if RSI > 70
-                elif buy_df.loc[i, 'Sell Closes'] > 1: 
+                elif df2.loc[i, 'Signal'] == 'Sell': 
                     # Sell condition
-                    signals_df.loc[i, 'Signal'] = -1.0
-                    signals_df.loc[i, 'Trade Type'] = "Sell"
+                    # signals_df.loc[i, 'Signal'] = -1.0
+                    # signals_df.loc[i, 'Trade Type'] = "Sell"
                     # calculate the proceeds of the trade
-                    revenue = (data.loc[i, 'Close'] * accumulated_shares)
-                    signals_df.loc[i, 'Total Revenue'] += revenue
+                    revenue = (df2.loc[i, 'Price'] * share_size)
+                    df2.loc[i, 'Total Revenue'] += revenue
                     # reset accumulated shares
-                    accumulated_shares = 0
+                    # accumulated_shares = 0
                     
                 # no signal if RSI between 30 and 70
                 else:
-                    signals_df.loc[i, 'Signal'] = signals_df.loc[i-1, 'Signal']
-                    signals_df.loc[i, 'Trade Type'] = signals_df.loc[i-1, 'Trade Type']
-                    signals_df.loc[i, 'Net Profit/Loss'] = signals_df.loc[i-1, 'Net Profit/Loss']
+                    # signals_df.loc[i, 'Signal'] = signals_df.loc[i-1, 'Signal']
+                    # signals_df.loc[i, 'Trade Type'] = signals_df.loc[i-1, 'Trade Type']
+                    # signals_df.loc[i, 'Net Profit/Loss'] = signals_df.loc[i-1, 'Net Profit/Loss']
+                    skip
 
             # calculate net profit/loss
             # signals_df['Net Profit/Loss'] = signals_df['Total Revenue'] - signals_df['Total Cost']
-            total_revenue = signals_df['Total Revenue'].sum()
-            total_cost = signals_df['Total Cost'].sum()
-            st.write(buy_df)
+            total_revenue = df2['Total Revenue'].sum()
+            total_cost = df2['Total Cost'].sum()
+            st.write(df2)
 
 
 
