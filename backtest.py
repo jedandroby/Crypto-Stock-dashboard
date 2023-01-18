@@ -196,11 +196,11 @@ def stats(strategy):
                 # RSI strategy
                 if strategy == 'RSI':
                     if rsi[i] < 30:
-                        buy_indices.append(i)
+                        buy_indices.append(i.loc[i, 'Date'])
                         buy_closes.append(data.loc[i, 'Close'])
                 
                     elif rsi[i] > 70:
-                        sell_indices.append(i)
+                        sell_indices.append(i.loc[i, 'Date'])
                         sell_closes.append(data.loc[i, 'Close'])
             # create signals dataframe
             signals_df = data.loc[:,["Close"]]
@@ -220,9 +220,11 @@ def stats(strategy):
             sell_indices = pd.Series(sell_indices)
             sell_closes = pd.Series(sell_closes)
            
-            buy_df = pd.concat([sell_closes, buy_closes], axis=1)
-            buy_df = buy_df.rename(columns={0: "Sell Closes", 1: "Buy Closes"})
-            buy_df = pd.DataFrame(buy_df, columns= ['Buy'])
+            sell_df = pd.concat([sell_closes, sell_indices], axis=1)
+            sell_df = pd.DataFrame(sell_df, columns= ['Sell Closes'])
+            sell_df.index = sell_df['Date']
+            st.write(sell_df)
+
             # buy_df.set_index("Date", inplace=True)
             # sell_df = pd.concat([sell_indices, sell_closes], axis=1)
             # sell_df.set_index("Date", inplace=True)
