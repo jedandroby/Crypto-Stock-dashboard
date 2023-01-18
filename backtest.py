@@ -231,10 +231,21 @@ def stats(strategy):
             # df1 = df1.pivot(columns='group', values=['buy', 'sell'])
             # df1.columns = ['buy', 'sell']
             st.write(df1)
-            
+            df2 = pd.DataFrame()
 
+            # create a column to store the previous signal
+            df1['prev_signal'] = df1['buy'].shift(1)
 
+            # iterate through the rows of the dataframe
+            for i, row in df1.iterrows():
+                # if the current signal is different from the previous signal, append it to the new dataframe
+                if row['buy'] != row['prev_signal']:
+                    df2 = df2.append({'Date': i, 'Signal': 'Buy', 'Price': row['buy']}, ignore_index=True)
+                elif row['sell'] != row['prev_signal']:
+                    df2 = df2.append({'Date': i, 'Signal': 'Sell', 'Price': row['sell']}, ignore_index=True)
 
+            st.write(df2)
+                 
             # buy_df.set_index("Date", inplace=True)
             # sell_df = pd.concat([sell_indices, sell_closes], axis=1)
             # sell_df.set_index("Date", inplace=True)
