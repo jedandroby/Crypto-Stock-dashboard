@@ -1,379 +1,393 @@
-import ccxt
-# jupyter lab --NotebookApp.iopub_data_rate_limit=1.0e10 - this command is required to run when opening jupyter labs or ccxt wont work in jupyter. or configure a config file.
-import pandas as pd
-import hvplot.pandas
-# from dotenv import load_dotenv
-import alpaca_trade_api as tradeapi
-import os
-import sqlalchemy as sql
-import sys
-import questionary
-from MCForecastTools import MCSimulation
-from warnings import filterwarnings
-filterwarnings("ignore")
 import streamlit as st
 from datetime import date
-import yfinance as yf
-from prophet import Prophet
-from prophet.plot import plot_plotly
+import datetime
 import plotly.graph_objects as go
 import yfinance as yf
-from prophet import Prophet
-from prophet.plot import plot_plotly
-import plotly.graph_objects as go
-import ccxt
-# jupyter lab --NotebookApp.iopub_data_rate_limit=1.0e10 - this command is required to run when opening jupyter labs or ccxt wont work in jupyter. or configure a config file.
 import pandas as pd
-import hvplot.pandas
-# from dotenv import load_dotenv
-import alpaca_trade_api as tradeapi
-import os
-import sqlalchemy as sql
-import sys
 import numpy as np
-from MCForecastTools import MCSimulation
-from warnings import filterwarnings
-# import pandas_ta as ta
-from scipy.stats import norm
 import math
 import matplotlib.pyplot as plt
-import questionary
-filterwarnings("ignore")
-import ccxt
-# jupyter lab --NotebookApp.iopub_data_rate_limit=1.0e10 - this command is required to run when opening jupyter labs or ccxt wont work in jupyter. or configure a config file.
-import pandas as pd
-import hvplot.pandas
-# from dotenv import load_dotenv
-import alpaca_trade_api as tradeapi
-import os
-import sqlalchemy as sql
-import sys
-import questionary
-from MCForecastTools import MCSimulation
-from warnings import filterwarnings
-filterwarnings("ignore")
+from prophet import Prophet
+from prophet.plot import plot_plotly
+from PIL import Image
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import LSTM
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
 
-def get_data_crypto():
-    '''
-    Function used for pulling data from qualified crypto exchanged based on accurate user volume taken from the free ccxt package. User chooses what exchange to connect too, and then decides what ticker they want to find. Code will find a USD equivalent pair and return the dataframe.
-    '''
-    # getting list of qualified exchanges for user to choose to connect too. 
-    exchanges = ccxt.exchanges
-    qe=['binance','bitfinex','bithumb','bitstamp','bittrex','coinbase','gemini','kraken',
-    'hitbtc','huobi','okex','poloniex','yobit','zaif']
-    fe=[s for s in exchanges if any(exchanges in s for exchanges in qe)]
+# def get_data_crypto():
+#     '''
+#     Function used for pulling data from qualified crypto exchanged based on accurate user volume taken from the free ccxt package. User chooses what exchange to connect too, and then decides what ticker they want to find. Code will find a USD equivalent pair and return the dataframe.
+#     '''
+#     # getting list of qualified exchanges for user to choose to connect too. 
+#     exchanges = ccxt.exchanges
+#     qe=['binance','bitfinex','bithumb','bitstamp','bittrex','coinbase','gemini','kraken',
+#     'hitbtc','huobi','okex','poloniex','yobit','zaif']
+#     fe=[s for s in exchanges if any(exchanges in s for exchanges in qe)]
     
-    exchange_id = questionary.select("Which exchange do you wish to pull from?",choices=fe).ask()
-    exchange_class = getattr(ccxt, exchange_id)
-    exchange = exchange_class({
-    'timeout':30000,
-    'enableRateLimit':True,
-    })
-    # exchange
-    # load market data
-    markets=exchange.load_markets()
-    # getting open high low close data for BTC from binance us, last 1000 hour candles. 
-    # have user select ticker they want to analyze, and convert it to upper
-    ticker = str(questionary.text('Please type the ticker of the token you are trying to analyze').ask())
-    ticker=ticker.upper()
-    try:
-        ohlc = exchange.fetch_ohlcv('%s/USD' % ticker, timeframe='1h', limit=691)
-    except :
-        try:
-            ohlc = exchange.fetch_ohlcv('%s/USDC' % ticker, timeframe='1h', limit=691)
-        except:    
-            try:
-                ohlc = exchange.fetch_ohlcv('%s/USDT' % ticker, timeframe='1h', limit=691)
-            except:
-                print('Sorry please pick another exchange/token to analyze, could not find a USD/USDC/USDT pair.')
-                ohlc = None
-                pass
-    # Creating a dataframe
-    if (isinstance(ohlc,pd.DataFrame) ==True):
-        if len(ohlc) > 1:
-            df = pd.DataFrame(ohlc,columns=['timestamp','Open','High','Low','Close','Volume'])
-            # Check for null values
-            df.isnull().sum().dropna()
-            # taken unix to datetime from firas pandas extra demo code
-            def unix_to_date(unix):
-                return pd.to_datetime(unix, unit = "ms").tz_localize('UTC').tz_convert('US/Pacific')
-            # Clean unix timestamp to a human readable timestamp. 
-            df['timestamp']= df['timestamp'].apply(unix_to_date)
-            # set index as timestamp
-            df = df.set_index(['timestamp'])
-            return df
-    return None
-df = get_data_crypto()
+#     exchange_id = questionary.select("Which exchange do you wish to pull from?",choices=fe).ask()
+#     exchange_class = getattr(ccxt, exchange_id)
+#     exchange = exchange_class({
+#     'timeout':30000,
+#     'enableRateLimit':True,
+#     })
+#     # exchange
+#     # load market data
+#     markets=exchange.load_markets()
+#     # getting open high low close data for BTC from binance us, last 1000 hour candles. 
+#     # have user select ticker they want to analyze, and convert it to upper
+#     ticker = str(questionary.text('Please type the ticker of the token you are trying to analyze').ask())
+#     ticker=ticker.upper()
+#     try:
+#         ohlc = exchange.fetch_ohlcv('%s/USD' % ticker, timeframe='1h', limit=691)
+#     except :
+#         try:
+#             ohlc = exchange.fetch_ohlcv('%s/USDC' % ticker, timeframe='1h', limit=691)
+#         except:    
+#             try:
+#                 ohlc = exchange.fetch_ohlcv('%s/USDT' % ticker, timeframe='1h', limit=691)
+#             except:
+#                 print('Sorry please pick another exchange/token to analyze, could not find a USD/USDC/USDT pair.')
+#                 ohlc = None
+#                 pass
+#     # Creating a dataframe
+#     if (isinstance(ohlc,pd.DataFrame) ==True):
+#         if len(ohlc) > 1:
+#             df = pd.DataFrame(ohlc,columns=['timestamp','Open','High','Low','Close','Volume'])
+#             # Check for null values
+#             df.isnull().sum().dropna()
+#             # taken unix to datetime from firas pandas extra demo code
+#             def unix_to_date(unix):
+#                 return pd.to_datetime(unix, unit = "ms").tz_localize('UTC').tz_convert('US/Pacific')
+#             # Clean unix timestamp to a human readable timestamp. 
+#             df['timestamp']= df['timestamp'].apply(unix_to_date)
+#             # set index as timestamp
+#             df = df.set_index(['timestamp'])
+#             return df
+#     return None
+# df = get_data_crypto()
 
-def analyze_data(d):
-    d = d
-    # # get the percent change for the coin and drop NaN values
-    coin_pct_change = d['Close'].pct_change().dropna()
-  
-    # get the annual pct change for the coin
-    coin_annual_pct_change = coin_pct_change.mean() * 365
-   
-    # calculate the annual std for BTC
-    coin_annual_std = coin_pct_change.std() * (365) ** (1/2)
-  
-    # create and plot the SMA for a 50 and 200 day period
-    ax = d['Close'].plot(figsize=(10,7), title="Daily prices versus 180-Day and 7-day Rolling Average")
-    d['Close'].rolling(window=200).mean().plot(ax=ax)
-    d['Close'].rolling(window=50).mean().plot(ax=ax, color= 'red')
-    ax.legend(["Daily Prices", "50-Day Rolling Average", '200 day rolling average'])
-   
-    # calculate the variance for the coin
-    coin_variance = coin_pct_change.var()
-    print(f" The Variance is: {coin_variance: .2f}")
-    
-    # calculate the sharpe ratio for the coin
-    sharpe_ratio = coin_annual_pct_change / coin_annual_std
-    print(f" The Sharpe Ratio is: {sharpe_ratio: .2f}")
-    
-    # calculate the covariance between the coin and SPY
-    cov = d['Close'].pct_change().cov(d['Close'].pct_change())*100000
-    print(f" The covariance to SPY is: {cov: .2f}")
-    
-    # calculate and pring the mean cumulative returns for the coin
-    cum_returns = (1 + coin_pct_change).cumprod() - 1 
-    cum_returns_mean = cum_returns.mean()
-    print(f' The average Cumulative Return is: % {cum_returns_mean: .2f}')
+def analyze_data(data):
+        d = data
+        # # get the percent change for the coin and drop NaN values
+        coin_pct_change = d['Close'].pct_change().dropna()
+        # coin_pct_change = pd.DataFrame(coin_pct_change)
+        coin_annual_pct_change = coin_pct_change.mean() * 365
 
-analyze_data(df)
+        # calculate the annual std for BTC
+        coin_annual_std = coin_pct_change.std() * (365) ** (1/2)
 
 
+        # calculate the variance for the coin
+        coin_variance = coin_pct_change.var()
+        st.subheader("Asset Analysis")
 
-def monte_carlo_sim(d):   
-    d = d
-    #Next, we calculate the number of days that have elapsed in our chosen time window
-    time_elapsed = (d.index[-1] - d.index[0]).days
+        st.write(f" The Variance is: {coin_variance: .5f}")
+        st.caption("""The Variance measures the deviation of the asset from the average (mean) price. A higher number will generally 
+        indicate a more volitile asset, as it tends to deviate from the mean price more consistently. But, this could also mean that 
+        you have the ability to make more return on your investment, as there is more deviation from the average price. A lower number
+        demonstrates the asset is less volitile, and could be seen as a 'safer' investment.""")
+        # calculate the sharpe ratio for the coin
+        sharpe_ratio = coin_annual_pct_change / coin_annual_std
+        st.write(f" The Sharpe Ratio is: {sharpe_ratio: .2f}")
+        st.caption(""" The Sharpe Ratio takes the assets average annual return and divides it by the assets annual standard deviation.
+        This is used to measure the risk/reward that you would be taking in a trade. Generally, a Sharpe Ratio between 1 - 2 is 
+        considered good, and anything over 3 is amazing!""")
 
-    #Current price / first record (e.g. price at beginning of 2009)
-    #provides us with the total growth %
-    total_growth = (d['Close'][-1] / d['Close'][1])
+        # # calculate the covariance between the coin and SPY
+        # cov = coin_pct_change.cov(d['Close'].pct_change())
+        # st.write(f" The covariance to SPY is: {cov: .2f}")
 
-    #Next, we want to annualize this percentage
-    #First, we convert our time elapsed to the # of years elapsed
-    number_of_years = time_elapsed / 365.0
-    #Second, we can raise the total growth to the inverse of the # of years
-    #(e.g. ~1/10 at time of writing) to annualize our growth rate
-    cagr = total_growth ** (1/number_of_years) - 1
+        # calculate and pring the mean cumulative returns for the coin
+        # get the annual pct change for the coin
+        coin_annual_pct_change = coin_annual_pct_change * 100
+        st.write(f" The Annual Percent Return is: % {coin_annual_pct_change: .2f}")
+        st.caption("""The Annual Percent Return demonstrates the annual rate of return for the asset. The Higher rate of return, the better! 
+        To calculate this, we take the average returns of the asset, and multiply it by 365, which gives us the average annual return!""")
 
-    #Now that we have the mean annual growth rate above,
-    #we'll also need to calculate the standard deviation of the
-    #daily price changes
-    std_dev = d['Close'].pct_change().std()
+            # create and plot the SMA for a 50 and 200 day period
+        ax = d['Close'].plot(figsize=(10,7),title= 'Asset chart with 50 and 200 Simple Moving Average',ylabel='Price in USD $',xlabel='Time since first data point' )
+        d['Close'].rolling(window=200).mean().plot(ax=ax)
+        d['Close'].rolling(window=50).mean().plot(ax=ax, color= 'Red')
+        ax.legend(["Daily Prices", "50-Day Rolling Average", '200 day rolling average'])
+        
+# analyze_data(df)
 
-    #Next, because there are roughy ~252 trading days in a year,
-    #we'll need to scale this by an annualization factor
-    #reference: https://www.fool.com/knowledge-center/how-to-calculate-annualized-volatility.aspx
 
-    number_of_trading_days = 252
-    std_dev = std_dev * math.sqrt(number_of_trading_days)
 
-    #From here, we have our two inputs needed to generate random
-    #values in our simulation
-    print ("cagr (mean returns) : ", str(round(cagr,4)))
-    print ("std_dev (standard deviation of return : )", str(round(std_dev,4)))
+def monte_carlo_sim(data):   
+        d = data
+        #Next, we calculate the number of days that have elapsed in our chosen time window
+        time_elapsed = len(d)
 
-    #Generate random values for 1 year's worth of trading (252 days),
-    #using numpy and assuming a normal distribution
-    daily_return_percentages =  np.random.normal(cagr/number_of_trading_days, std_dev/math.sqrt(number_of_trading_days),number_of_trading_days)+1
 
-    #Now that we have created a random series of future
-    #daily return %s, we can simply apply these forward-looking
-    #to our last stock price in the window, effectively carrying forward
-    #a price prediction for the next year
+        #Current price / first record (e.g. price at beginning of 2009)
+        #provides us with the total growth %
+        total_growth = (d['Close'].iloc[-1] / d['Close'].iloc[0])
 
-    #This distribution is known as a 'random walk'
+        #Next, we want to annualize this percentage
+        #First, we convert our time elapsed to the # of years elapsed
+        number_of_years = time_elapsed / 365.0
+        #Second, we can raise the total growth to the inverse of the # of years
+        #(e.g. ~1/10 at time of writing) to annualize our growth rate
+        cagr = total_growth ** (1/number_of_years) - 1
 
-    price_series = [d['Close'][-1]]
+        #Now that we have the mean annual growth rate above,
+        #we'll also need to calculate the standard deviation of the
+        #daily price changes
+        std_dev = d['Close'].pct_change().std()
 
-    for j in daily_return_percentages:
-        price_series.append(price_series[-1] * j)
+        #Next, because there are 365 trading days in a year for Crypto,
+        #we'll need to scale this by an annualization factor
+        #reference: https://www.fool.com/knowledge-center/how-to-calculate-annualized-volatility.aspx
 
-    #Great, now we can plot of single 'random walk' of stock prices
-    plt.plot(price_series)
-    plt.show()
+        number_of_trading_days = 365
+        std_dev = std_dev * math.sqrt(number_of_trading_days)
 
-    #Now that we've created a single random walk above,
-    #we can simulate this process over a large sample size to
-    #get a better sense of the true expected distribution
-    number_of_trials = 3000
+        #From here, we have our two inputs needed to generate random
+        #values in our simulation
+        # st.write("Compound Annual Growth Rate (cagr): ", str(round(cagr,4)))
+        # st.caption("""The cagr is used to measure the compounded growth of an asset over a yearly basis. In this case, we are measuring the annual 
+        # compounded returns, so you can think of this as the average compounded annual return""")
+        st.write("Standard Deviation (std)", str(round(std_dev,2)))
+        st.caption(""" The Standard Deviation can be used as a volitlity metric, and showcase the spread in which an asset deviates from the 
+        average price. Standard Deviation is more a measure of how far apart numbers are from each other, whereas
+        the variance will return a value to show how much the numbers vary from the mean. Generally, a std value over 1, will be considered
+        more volitile, whereas a std under 1 is seen as less volitile. """)
 
-    #set up an additional array to collect all possible
-    #closing prices in last day of window.
-    #We can toss this into a histogram
-    #to get a clearer sense of possible outcomes
-    closing_prices = []
 
-    for i in range(number_of_trials):
-        #calculate randomized return percentages following our normal distribution
-        #and using the mean / std dev we calculated above
-        daily_return_percentages = np.random.normal(cagr/number_of_trading_days, std_dev/math.sqrt(number_of_trading_days),number_of_trading_days)+1
-        price_series = [d['Close'][-1]]
+        st.subheader("50 and 200 Day Simple Moving Average Chart")
+
+        #Generate random values for 1 year's worth of trading (365 days),
+        #using numpy and assuming a normal distribution
+        daily_return_percentages =  np.random.normal(cagr/number_of_trading_days, std_dev/math.sqrt(number_of_trading_days),number_of_trading_days)+1
+
+        #Now that we have created a random series of future
+        #daily return %s, we can simply apply these forward-looking
+        #to our last stock price in the window, effectively carrying forward
+        #a price prediction for the next year
+
+        #This distribution is known as a 'random walk'
+
+        price_series = [d['Close'].iloc[-1]]
 
         for j in daily_return_percentages:
-            #extrapolate price out for next year
-            price_series.append(price_series[-1] * j)
+            price_series.append(price_series[0] * j)
 
-        #append closing prices in last day of window for histogram
-        closing_prices.append(price_series[-1])
+        #Great, now we can plot of single 'random walk' of stock prices
+        # plt.plot(price_series)
 
-        #plot all random walks
-        plt.plot(price_series)
+        plot_0_5 = plt.show()
+        st.pyplot(plot_0_5)
 
-    plt.show()
+        #Now that we've created a single random walk above,
+        #we can simulate this process over a large sample size to
+        #get a better sense of the true expected distribution
+        number_of_trials = 500
+        st.subheader("One Year Monte Carlo Simulation - 500 trials")
+        #set up an additional array to collect all possible
+        #closing prices in last day of window.
+        #We can toss this into a histogram
+        #to get a clearer sense of possible outcomes
+        closing_prices = []
 
-    #plot histogram
-    plt.hist(closing_prices,bins=40)
+        for i in range(number_of_trials):
+            #calculate randomized return percentages following our normal distribution
+            #and using the mean / std dev we calculated above
+            daily_return_percentages = np.random.normal(cagr/number_of_trading_days, std_dev/math.sqrt(number_of_trading_days),number_of_trading_days)+1
+            price_series = [d['Close'].iloc[-1]]
 
-    plt.show()
+            for j in daily_return_percentages:
+                #extrapolate price out for next year
+                price_series.append(price_series[-1] * j)
 
-    #lastly, we can split the distribution into percentiles
-    #to help us gauge risk vs. reward
+            #append closing prices in last day of window for histogram
 
-    #Pull top 10% of possible outcomes
-    top_ten = np.percentile(closing_prices,100-10)
+            closing_prices.append(price_series[-1])
 
-    #Pull bottom 10% of possible outcomes
-    bottom_ten = np.percentile(closing_prices,10);
+            #plot all random walks
+            plot_please = plt.plot(price_series)
 
-    #create histogram again
-    plt.hist(closing_prices,bins=40)
-    #append w/ top 10% line
-    plt.axvline(top_ten,color='r',linestyle='dashed',linewidth=2)
-    #append w/ bottom 10% line
-    plt.axvline(bottom_ten,color='r',linestyle='dashed',linewidth=2)
-    #append with current price
-    plt.axvline(d['Close'][-1],color='g', linestyle='dashed',linewidth=2)
 
-    plt.show()
+        plot_please = plt.show()
+        st.pyplot(plot_please)
 
-    #from here, we can check the mean of all ending prices
-    #allowing us to arrive at the most probable ending point
-    mean_end_price = round(np.mean(closing_prices),2)
-    print("Expected price: ", str(mean_end_price))
+        #lastly, we can split the distribution into percentiles
+        #to help us gauge risk vs. reward
+        st.subheader("Distribution Chart for simulation results")
+        #Pull top 10% of possible outcomes
+        top_ten = np.percentile(closing_prices,100-10)
 
-monte_carlo_sim(d)
+        #Pull bottom 10% of possible outcomes
+        bottom_ten = np.percentile(closing_prices,10);
+        # bins=40
+        #create histogram again
+        plt.hist(closing_prices)
+        #append w/ top 10% line
+        plt.axvline(top_ten,color='r',linestyle='dashed',linewidth=2)
+        #append w/ bottom 10% line
+        plt.axvline(bottom_ten,color='r',linestyle='dashed',linewidth=2)
+        #append with current price
+        plt.axvline(d['Close'].iloc[-1],color='g', linestyle='dashed',linewidth=2)
+
+        plot_3 = plt.show()
+        st.pyplot(plot_3)
+        #from here, we can check the mean of all ending prices
+        #allowing us to arrive at the most probable ending point 
+        st.subheader("Monte Carlo Price Expectation Results")
+        mean_end_price = round(np.mean(closing_prices),2)
+        st.write("The Expected price of the asset in one year is : $", str(mean_end_price))
+        st.caption("This is calculated by taking the average (mean) closing price of all the simulations.")
+
     
-# def get_data_qqq():
-#     '''
-#     Function used for getting data from Alpaca for the QQQ Stock ticker and save the data as a dataframe.
-#     '''
-#     alpaca = tradeapi.REST(
-#         ALPACA_API_KEY,
-#         ALPACA_SECRET_KEY,
-#         api_version="v2")
-
-#     # Format current date as ISO format 
-#     today = pd.Timestamp.now(tz="US/Pacific")
-#     a_year_ago = pd.Timestamp(today - pd.Timedelta(days=365)).isoformat()
-#     end_date = pd.Timestamp(today - pd.Timedelta(days=1)).isoformat()
-
-#     # Set the tickers
-#     tickers = ["QQQ"]
 
 
-#     # Set timeframe to one day ('1Day') for the Alpaca API
-#     timeframe = "1D"
+def get_data_yahoo (START, TODAY):
+    stocks = ("BTC-USD","LINK-USD","SOL-USD","MATIC-USD","MANA-USD","DOT-USD","AVAX-USD","XLM-USD","LTC-USD","XRP-USD","BNB-USD","UNI-USD","ETH-USD","ADA-USD","USDC-USD","BAT-USD")
+    selected_ticker = st.selectbox("Pick a coin for prediction",stocks)
+    @st.cache
+    def load_data(selected_ticker):
+        data = yf.download(selected_ticker,START,TODAY)
+        data.reset_index('Date',inplace=True)
+        data = pd.DataFrame(data)
+        return data
+    data = load_data(selected_ticker)
+    st.subheader("Asset Data Head")
+    st.write(data.head())
+    st.subheader('Asset Data Tail')
+    st.write(data.tail())
+    st.subheader("Interactive Asset Chart")
+    def plot_raw_data():
+        fig=go.Figure()
+        fig.add_trace(go.Scatter(x=data["Date"],y=data['Open'], name='stock_open'))
+        fig.add_trace(go.Scatter(x=data["Date"],y=data['Close'], name='stock_close'))
+        fig.layout.update(title_text='Time Series Data', xaxis_rangeslider_visible=True)
+        st.plotly_chart(fig)
+    plot_raw_data()
+    return data
 
-#     # Get current closing prices for NDX
-#     dqqq_price = alpaca.get_bars(
-#             tickers,
-#             timeframe,
-#             start=a_year_ago,
-#             end=end_date
-#         ).df
-
-#     # Display sample data
-#     # separate Ticker Data
-#     QQQ = dqqq_price[dqqq_price['symbol']=='QQQ'].drop('symbol', axis=1)
-     
-#     # set the index as Timestamp
-#     # dqqq_price = dqqq_price.set_index(['Timestamp'])
-
-#     # Concatenate the Ticker DataFrames
-
-#     dqqq_price = pd.concat([QQQ],axis=1, keys=['QQQ'])
-#     return dqqq_price
-
-# def get_data_spy():
-#      '''
-#     Function used for getting data from Alpaca for the SPY Stock ticker and save the data as a dataframe.
-#     '''
-#     alpaca = tradeapi.REST(
-#         ALPACA_API_KEY,
-#         ALPACA_SECRET_KEY,
-#         api_version="v2")
-#     ALPACA_API_KEY = 'PK2BWJQC7W7Z3C87TKI6'
-#     ALPACA_SECRET_KEY = 'qox7s7aZ70L9yAp8HS6Kz0JXngu6a20ikuD3EmCq'
     
-#     # # Set the variables for the Alpaca API and secret keys
-#     # alpaca_api_key=os.getenv(ALPACA_API_KEY)
-#     # # Create the Alpaca tradeapi.REST object
-#     # alpaca_secret_key=os.getenv(ALPACA_SECRET_KEY)
+def LSTM_model(look_back, neurons, epoch, data, test_split):
+       
+    # create a time series dataset
+    def create_dataset(prices, look_back=3):
+        X, y = [], []
+        for i in range(len(prices)-look_back-1):
+            X.append(prices[i:(i+look_back), 0])
+            y.append(prices[i + look_back, 0])
+        return np.array(X), np.array(y)
+    # Forecasting
+    # extract the close prices
+    prices = data['Close'].values
+
+    # normalize the data
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    prices = scaler.fit_transform(prices.reshape(-1, 1))
     
-#     alpaca=tradeapi.REST(ALPACA_API_KEY,ALPACA_SECRET_KEY,api_version="v2")
+    # create x,y data sets
+    X, y = create_dataset(prices, look_back)
+    
+    # reshape the input to be 3D [samples, timesteps, features]
+    X = np.reshape(X, (X.shape[0], 1, X.shape[1]))
 
-#     #Setting the tickers
-#     tickers = ['SPY']
+    # split the data into train and test sets
+    train_size = int(len(X) * test_split)
+    test_size = len(X) - train_size
+    X_train, X_test = X[0:train_size,:], X[train_size:len(X),:]
+    y_train, y_test = y[0:train_size], y[train_size:len(y)]
+    # get the data rdy to plot for later
+    close_data = prices.reshape((-1,1))
 
-#     #Setting the timeframe
-#     timeframe='1Day'
+    split_percent = test_split
+    split = int(split_percent*len(close_data))
 
-#     #Formatting the date
-#     today = pd.Timestamp.now(tz="US/Pacific")
-#     a_year_ago = pd.Timestamp(today - pd.Timedelta(days=15000)).isoformat()
-#     end_date = pd.Timestamp(today - pd.Timedelta(days=1)).isoformat()
+    date_test = data['Date'][split:]
+    
+    # create the LSTM model
+    model = Sequential()
+    model.add(LSTM(neurons, input_shape=(X_train.shape[1], X_train.shape[2])))
+    model.add(Dense((neurons/2), activation='relu'))
+    model.add(Dense(1))
+    model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mean_absolute_error'])
+    # fit the model to the training data
+    model.fit(X_train, y_train, epochs=epoch, batch_size=1, verbose=2)
 
-#     #Getting the closing prices
-#     spy_price = alpaca.get_bars(
-#     tickers,
-#     timeframe,
-#     start=a_year_ago,
-#     end=end_date
-#     ).df
+    # use the model to make predictions on the test set
+    y_pred = model.predict(X_test)
 
-#     # Check for NaN Values
-#     spy_price.isnull().dropna()
+    # invert the predictions and true values back to the original scale
+    y_pred = scaler.inverse_transform(y_pred)
+    y_test = scaler.inverse_transform(y_test.reshape(-1, 1))
 
-#     df_spy = spy_price.drop(columns=["trade_count","vwap","symbol"])
-#     return df_spy
+    # evaluate the model
+    test_score = model.evaluate(X_test, y_test, verbose=0)
 
-# # connect to database function
-# def connect():
-#     '''Connect to the sqlite database server''' 
-#     conn = None
-#     try:
-#         # connect to the SQLite server
-#         print('Connecting to the SQLite database...')
-#         conn = sql.create_engine('sqlite:///')
-#     except :
-#         print("Connection not successful!")
-#         sys.exit(1)
-#     print("Connection Successful!")
-#     return conn
-# #copy data to database
-# def copy_to_db(conn, df, table):
-#     """
-#     save the dataframe in memory as a sqlite database with name 'table' 
-#     conn is the connection engine used. use connect function to get 
-#     """    
-#     try:
-#         df.to_sql('%s'%table, con=conn, index=True,if_exists='replace')
-#         print(f'Saving dataframe as a table called {table} in sqlite database')
-#     except :
-#         print("Error")
-#     print("Done!")
-#     return conn.table_names()
-# #copy a dataframe from database based on a query
-# def open_as_df(query,conn):
-#     '''pass query to get dataframe: select * from spy_db_OHLCV fx. '''
-#     try:
-#         df = pd.read_sql_query(sql = query,con = conn, index_col= ['timestamp'])
-#         print('Accessing SQLite database based on query')
-#     except :
-#         print('Error')
-#         sys.exit(1)
-#     return df
+    # in streamlit app
+    # st.write("Mean Squared Error: ",test_score)
+    prediction = y_pred.reshape((-1))
+
+    trace1 = go.Scatter(
+        x = data['Date'],
+        y = data['Close'],
+        mode = 'lines',
+        name = 'Actual Price'
+    )
+    trace2 = go.Scatter(
+        x = date_test,
+        y = prediction,
+        mode = 'lines',
+        name = 'Prediction'
+    )
+
+    layout = go.Layout(
+        title = "Real price vs Model train/test predictions ",
+        xaxis = {'title' : "Date"},
+        yaxis = {'title' : "Close"}
+    )
+    fig = go.Figure(data=[trace1,trace2], layout=layout)
+    st.plotly_chart(fig)
+    #predict a month of price action
+    # use the model to make predictions on the data for the next month
+    X_future = X[-look_back:]
+    # use the trained model to make predictions on the future data
+    y_future= model.predict(X_future)
+    # invert the predictions back to the original scale
+    y_future = scaler.inverse_transform(y_future)
+    
+    # Get the current date
+    now = datetime.datetime.now()
+
+    # Create a list of dates for the next x days
+    date_list = [now + datetime.timedelta(days=x) for x in range(look_back)]
+
+    # Convert the date list to strings in the format 'YYYY-MM-DD'
+    date_strings = [date.strftime('%Y-%m-%d') for date in date_list]
+    date_strings = pd.DataFrame(date_strings, columns=['date'])
+    y_future = pd.DataFrame(y_future, columns=['Predicted price'])
+    y_future.index = date_strings['date']
+
+    
+    trace1 = go.Scatter(
+        x = data['Date'],
+        y = data['Close'],
+        mode = 'lines',
+        name = 'Actual Price'
+    )
+    trace2 = go.Scatter(
+        x = date_strings['date'],
+        y = y_future['Predicted price'],
+        mode = 'lines',
+        name = 'Predicted Data'
+    )
+    layout2 = go.Layout(
+        title = "Real price + Model future price predictions ",
+        xaxis = {'title' : "Date"},
+        yaxis = {'title' : "Close"}
+    )
+    fig= go.Figure(data=[trace2, trace1], layout=layout2)
+    st.plotly_chart(fig)
+    expected_price=y_future.iloc[-1,-1]
+    # expected_price=expected_price.values
+    st.write(f'in {look_back} days the model predicts the price to be around ${expected_price}')
+    
