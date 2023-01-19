@@ -1,6 +1,7 @@
 
 import streamlit as st
 from datetime import date
+import datetime
 import plotly.graph_objects as go
 import yfinance as yf
 import pandas as pd
@@ -9,8 +10,12 @@ import math
 import matplotlib.pyplot as plt
 from prophet import Prophet
 from prophet.plot import plot_plotly
-
-
+from PIL import Image
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import LSTM
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
 
 
 
@@ -275,7 +280,7 @@ def intro ():
 
     
 def ML ():
-     START = "2010-01-01"
+    START = "2010-01-01"
     TODAY = date.today().strftime("%Y-%m-%d")
 
     st.title("LSTM (Long Short-Term Memory) Predictor")
