@@ -173,11 +173,6 @@ with col2:
                 plt.title('MACD Strategy')
                 st.pyplot()
         
-            execute_trades(data,selected_strategy)
-    plotting(strategy)
-
-
-
     if strategy == "RSI":
             st.sidebar.title("What is the RSI Strategy")
             st.sidebar.write("""The RSI strategy is based on the Relative Strength Index, which is a technical indicator that compares the magnitude of recent gains to recent losses in order to assess overbought or oversold conditions of an asset. In this strategy, when the RSI falls below a user-specified low level, it generates a buy signal, 
