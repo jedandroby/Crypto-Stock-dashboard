@@ -25,7 +25,7 @@ st.set_page_config(layout="wide")
 col1, col2 = st.columns(2)
 with col1:
 
-
+    
     st.header("Trading Algorithm Automatic Backtester")
     st.write("""Welcome to the Automatic Trading Algorithm Backtester! 
     Say goodbye to manual backtesting and hello to efficient and accurate results.
@@ -108,8 +108,19 @@ with col2:
     strategy = (selected_strategy)
     def plotting(strategy):
         if strategy == "RSI":
-
-            def execute_trade(data, strategy):
+                
+            st.sidebar.title("What is the RSI Strategy")
+            st.sidebar.write("""The RSI strategy is based on the Relative Strength Index, which is a technical indicator that compares the magnitude of recent gains to recent losses in order to assess overbought or oversold conditions of an asset. In this strategy, when the RSI falls below a user-specified low level, it generates a buy signal, 
+            and when the RSI rises above a user-specified high level, it generates a sell signal. You may adjust the low and high levels to suit your own risk tolerance and investment style. A general RSI trading strategy will have the overbought value as 30 and oversold value as 70. There are many other ways to configure the strategy as well, so feel free to try out new values for the overbought and oversold!""")
+            st.sidebar.title("Customize The RSI Strategy")
+            share_size = st.sidebar.slider("How many shares would you like to purchase on every buy signal?",1,1000)
+            st.sidebar.caption("Share size refers to the number of shares the algorithm will purchase on every buy signal.")
+            rsi_low = st.sidebar.slider("What would you like the low signal for the RSI to be?",1,100)
+            st.sidebar.caption("Low signal for RSI refers to the RSI threshold at which the algorithm will generate a buy signal.")
+            rsi_high = st.sidebar.slider("What would you like the high signal for the RSI to be?",1,100)
+            st.sidebar.caption("High signal for RSI refers to the RSI threshold at which the algorithm will generate a sell signal.")
+        if st.sidebar.button("Start"):
+            def execute_trade(data, strategy,rsi_low, rsi_high):
                 # Initialize indicators
                 rsi = TA.RSI(data)
         
@@ -124,11 +135,11 @@ with col2:
                 for i in range(1, len(data)):
                     # RSI strategy
                     if strategy == 'RSI':
-                        if rsi[i] < 30:
+                        if rsi[i] < rsi_low:
                             buy_indices.append(i)
                             buy_closes.append(data.loc[i, 'Close'])
                     
-                        elif rsi[i] > 70:
+                        elif rsi[i] > rsi_high:
                             sell_indices.append(i)
                             sell_closes.append(data.loc[i, 'Close'])
                             # Plot RSI buys and sells 
@@ -141,82 +152,8 @@ with col2:
                 st.pyplot()
 
                 
-            execute_trade(data,selected_strategy)
-        else:
-            def execute_trades(data, strategy):
-                # Initialize indicators
-            
-                macd, macd_signal, macd_hist = abstract.MACD(data['Close'], fastperiod=12, slowperiod=26, signalperiod=9)
-                macd_df = pd.DataFrame(macd, columns=['MACD'])
-
-                # Initialize variables to keep track of trades
-                buy_indices = []
-                buy_closes = []
-                sell_indices = []
-                sell_closes = []
-
-                # Iterate through the data and execute trades
-                for i in range(1, len(data)):
-                    if strategy == 'MACD':
-                        if macd[i] < macd_signal[i] and macd[i-1] > macd_signal[i-1]:
-                            buy_indices.append(i)
-                            buy_closes.append(data.loc[i, 'Close'])
-                        elif macd[i] > macd_signal[i] and macd[i-1] < macd_signal[i-1]:
-                            sell_indices.append(i)
-                            sell_closes.append(data.loc[i, 'Close'])
-
-                # Plot MACD buys and sells
-                plt.plot(data['Close'], '-', label='Close Price')
-                plt.scatter(buy_indices, buy_closes, color='green', marker='^', label='Buy')
-                plt.scatter(sell_indices, sell_closes, color='red', marker='v', label='Sell')
-                plt.legend()
-                plt.title('MACD Strategy')
-                st.pyplot()
-        
-            execute_trades(data,selected_strategy)
-    plotting(strategy)
-
-
-
-    if strategy == "RSI":
-            st.sidebar.title("What is the RSI Strategy")
-            st.sidebar.write("""The RSI strategy is based on the Relative Strength Index, which is a technical indicator that compares the magnitude of recent gains to recent losses in order to assess overbought or oversold conditions of an asset. In this strategy, when the RSI falls below a user-specified low level, it generates a buy signal, 
-            and when the RSI rises above a user-specified high level, it generates a sell signal. You may adjust the low and high levels to suit your own risk tolerance and investment style. A general RSI trading strategy will have the overbought value as 30 and oversold value as 70. There are many other ways to configure the strategy as well, so feel free to try out new values for the overbought and oversold!""")
-            st.sidebar.title("Customize The RSI Strategy")
-            share_size = st.sidebar.slider("How many shares would you like to purchase on every buy signal?",1,1000)
-            st.sidebar.caption("Share size refers to the number of shares the algorithm will purchase on every buy signal.")
-            rsi_low = st.sidebar.slider("What would you like the low signal for the RSI to be?",1,100)
-            st.sidebar.caption("Low signal for RSI refers to the RSI threshold at which the algorithm will generate a buy signal.")
-            rsi_high = st.sidebar.slider("What would you like the high signal for the RSI to be?",1,100)
-            st.sidebar.caption("High signal for RSI refers to the RSI threshold at which the algorithm will generate a sell signal.")
-
-            
-    else:
-        st.sidebar.title("What is the MACD Strategy?")
-        st.sidebar.write("""The Moving Average Convergence Divergence MACD strategy uses the difference between two moving averages, the fast Exponential Moving Average (EMA) and slow EMA, to generate buy and sell 
-            signals. When the fast EMA crosses above the slow EMA, it generates a buy signal, indicating that the asset's price is likely to rise. On 
-            the other hand, when the fast EMA crosses below the slow EMA, it generates a sell signal, indicating that the stock's price is likely to fall. 
-            You may adjust the EMA periods to your liking to fine-tune the strategy to fit your specific needs. A baseline that traders generally use, would be to have the slow period EMA be 26, the fast be 12, and the signal to be 9. This tends to be a good baseline, 
-            but there are many other configurations that you could try as well! """)
-        st.sidebar.title("Customize The MACD Strategy")
-        share_size = st.sidebar.slider("How many shares would you like to purchase on every buy signal?",1,1000)
-        st.sidebar.caption("Share size refers to the number of shares the algorithm will purchase on every buy signal.")
-        fastperiod = st.sidebar.slider("What would you like the fast (shorter) period EMA to be?",1,200)
-        st.sidebar.caption("Fast period for EMA refers to the shorter time period used to calculate the Exponential Moving Average.")
-        slowperiod = st.sidebar.slider("What would you like the slow (longer) period EMA to be?",1,500)
-        st.sidebar.caption("Slow period for EMA refers to the longer time period used to calculate the Exponential Moving Average.")
-        signalperiod = st.sidebar.slider("What would you like the signal period EMA to be?",1,100)
-        st.sidebar.caption("Signal period for EMA refers to the time period used to calculate the signal line for the Exponential Moving Average.")
-    if st.sidebar.button("Start"):
-
-
-        # code to run after submit button is clicked
-
-        def stats(strategy):
-                
-            if strategy == "RSI":
-                    
-                def backtest_RSI(data, share_size, rsi_low, rsi_high):
+            execute_trade(data,selected_strategy,rsi_low, rsi_high)
+            def backtest_RSI(data, share_size, rsi_low, rsi_high):
                     # initial_capital = int(initial_capital)
                     share_size = int(share_size)
                     # calculate RSI
@@ -323,13 +260,58 @@ with col2:
                     that past performance is not indicative of future results and this is not 
                     financial advice. But with our subscription model, we will work together to 
                     further amplify the strategy and create even greater returns on investment!''')
-                backtest_RSI(data, share_size,rsi_low, rsi_high)
+            backtest_RSI(data, share_size,rsi_low, rsi_high)
 
+        else:
+            st.sidebar.title("What is the MACD Strategy?")
+            st.sidebar.write("""The Moving Average Convergence Divergence MACD strategy uses the difference between two moving averages, the fast Exponential Moving Average (EMA) and slow EMA, to generate buy and sell 
+                signals. When the fast EMA crosses above the slow EMA, it generates a buy signal, indicating that the asset's price is likely to rise. On 
+                the other hand, when the fast EMA crosses below the slow EMA, it generates a sell signal, indicating that the stock's price is likely to fall. 
+                You may adjust the EMA periods to your liking to fine-tune the strategy to fit your specific needs. A baseline that traders generally use, would be to have the slow period EMA be 26, the fast be 12, and the signal to be 9. This tends to be a good baseline, 
+                but there are many other configurations that you could try as well! """)
+            st.sidebar.title("Customize The MACD Strategy")
+            share_size = st.sidebar.slider("How many shares would you like to purchase on every buy signal?",1,1000)
+            st.sidebar.caption("Share size refers to the number of shares the algorithm will purchase on every buy signal.")
+            fastperiod = st.sidebar.slider("What would you like the fast (shorter) period EMA to be?",1,200)
+            st.sidebar.caption("Fast period for EMA refers to the shorter time period used to calculate the Exponential Moving Average.")
+            slowperiod = st.sidebar.slider("What would you like the slow (longer) period EMA to be?",1,500)
+            st.sidebar.caption("Slow period for EMA refers to the longer time period used to calculate the Exponential Moving Average.")
+            signalperiod = st.sidebar.slider("What would you like the signal period EMA to be?",1,100)
+            st.sidebar.caption("Signal period for EMA refers to the time period used to calculate the signal line for the Exponential Moving Average.")
+        if st.sidebar.button("Start"):
+            st.snow()
+            def execute_trades(data, strategy, fastperiod, slowperiod, signalperiod):
+                # Initialize indicators
+            
+                macd, macd_signal, macd_hist = abstract.MACD(data['Close'], fastperiod, slowperiod, signalperiod)
+                macd_df = pd.DataFrame(macd, columns=['MACD'])
 
+                # Initialize variables to keep track of trades
+                buy_indices = []
+                buy_closes = []
+                sell_indices = []
+                sell_closes = []
 
-            else:
-                        
-                def backtest_MACD(data, share_size,fastperiod, slowperiod, signalperiod):
+                # Iterate through the data and execute trades
+                for i in range(1, len(data)):
+                    if strategy == 'MACD':
+                        if macd[i] < macd_signal[i]:
+                            buy_indices.append(i)
+                            buy_closes.append(data.loc[i, 'Close'])
+                        elif macd[i] > macd_signal[i]:
+                            sell_indices.append(i)
+                            sell_closes.append(data.loc[i, 'Close'])
+
+                # Plot MACD buys and sells
+                plt.plot(data['Close'], '-', label='Close Price')
+                plt.scatter(buy_indices, buy_closes, color='green', marker='^', label='Buy')
+                plt.scatter(sell_indices, sell_closes, color='red', marker='v', label='Sell')
+                plt.legend()
+                plt.title('MACD Strategy')
+                st.pyplot()
+        
+            execute_trades(data,selected_strategy,fastperiod, slowperiod, signalperiod)
+            def backtest_MACD(data, share_size,fastperiod, slowperiod, signalperiod):
                     # initial_capital = int(initial_capital)
                     share_size = int(share_size)
                     # Initialize variables to keep track of trades
@@ -429,14 +411,50 @@ with col2:
                     usd_val = total_revenue - total_cost
                     st.write(f"""The total amount in USD that you would have made while trading this 
                     strategy would have been: ${round(usd_val, 2)}""")
-                    st.caption('''Please note that this trading algorithm is a generic strategy 
-                    using pre-set conditions and is intended for educational purposes only. In 
+                    st.caption('''Please note that this trading algorithm is a generic strategy and is intended for educational purposes only. In 
                     order to achieve a higher return on investment, it is recommended to tweak 
                     the conditions and customize the strategy to suit your needs. Keep in mind 
                     that past performance is not indicative of future results and this is not 
                     financial advice. But with our subscription model, we will work together to 
                     further amplify the strategy and create even greater returns on investment!''')
-                backtest_MACD(data, share_size,fastperiod, slowperiod, signalperiod)
+            backtest_MACD(data, share_size,fastperiod, slowperiod, signalperiod)
                     
 
-        stats(strategy)
+plotting(strategy)
+
+
+
+    # if strategy == "RSI":
+    #         st.sidebar.title("What is the RSI Strategy")
+    #         st.sidebar.write("""The RSI strategy is based on the Relative Strength Index, which is a technical indicator that compares the magnitude of recent gains to recent losses in order to assess overbought or oversold conditions of an asset. In this strategy, when the RSI falls below a user-specified low level, it generates a buy signal, 
+    #         and when the RSI rises above a user-specified high level, it generates a sell signal. You may adjust the low and high levels to suit your own risk tolerance and investment style. A general RSI trading strategy will have the overbought value as 30 and oversold value as 70. There are many other ways to configure the strategy as well, so feel free to try out new values for the overbought and oversold!""")
+    #         st.sidebar.title("Customize The RSI Strategy")
+    #         share_size = st.sidebar.slider("How many shares would you like to purchase on every buy signal?",1,1000)
+    #         st.sidebar.caption("Share size refers to the number of shares the algorithm will purchase on every buy signal.")
+    #         rsi_low = st.sidebar.slider("What would you like the low signal for the RSI to be?",1,100)
+    #         st.sidebar.caption("Low signal for RSI refers to the RSI threshold at which the algorithm will generate a buy signal.")
+    #         rsi_high = st.sidebar.slider("What would you like the high signal for the RSI to be?",1,100)
+    #         st.sidebar.caption("High signal for RSI refers to the RSI threshold at which the algorithm will generate a sell signal.")
+
+            
+    # else:
+    #     st.sidebar.title("What is the MACD Strategy?")
+    #     st.sidebar.write("""The Moving Average Convergence Divergence MACD strategy uses the difference between two moving averages, the fast Exponential Moving Average (EMA) and slow EMA, to generate buy and sell 
+    #         signals. When the fast EMA crosses above the slow EMA, it generates a buy signal, indicating that the asset's price is likely to rise. On 
+    #         the other hand, when the fast EMA crosses below the slow EMA, it generates a sell signal, indicating that the stock's price is likely to fall. 
+    #         You may adjust the EMA periods to your liking to fine-tune the strategy to fit your specific needs. A baseline that traders generally use, would be to have the slow period EMA be 26, the fast be 12, and the signal to be 9. This tends to be a good baseline, 
+    #         but there are many other configurations that you could try as well! """)
+    #     st.sidebar.title("Customize The MACD Strategy")
+    #     share_size = st.sidebar.slider("How many shares would you like to purchase on every buy signal?",1,1000)
+    #     st.sidebar.caption("Share size refers to the number of shares the algorithm will purchase on every buy signal.")
+    #     fastperiod = st.sidebar.slider("What would you like the fast (shorter) period EMA to be?",1,200)
+    #     st.sidebar.caption("Fast period for EMA refers to the shorter time period used to calculate the Exponential Moving Average.")
+    #     slowperiod = st.sidebar.slider("What would you like the slow (longer) period EMA to be?",1,500)
+    #     st.sidebar.caption("Slow period for EMA refers to the longer time period used to calculate the Exponential Moving Average.")
+    #     signalperiod = st.sidebar.slider("What would you like the signal period EMA to be?",1,100)
+    #     st.sidebar.caption("Signal period for EMA refers to the time period used to calculate the signal line for the Exponential Moving Average.")
+    # if st.sidebar.button("Start"):
+    #     st.snow()
+
+
+        # code to run after submit button is clicked
