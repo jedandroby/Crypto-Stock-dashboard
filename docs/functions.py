@@ -17,7 +17,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from finta import TA
 import ta
-from talib import abstract
+# from talib import abstract
 from sklearn.linear_model import LinearRegression
 
 # def get_data_crypto():
