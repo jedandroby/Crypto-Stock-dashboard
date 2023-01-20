@@ -20,13 +20,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 import sys
 sys.path.append('docs')
-from functions import get_data_yahoo
-from functions import analyze_data
-from functions import monte_carlo_sim
-from functions import LSTM_model
-from functions import trading_algo
-from functions import linear_model
-from functions import prop_model
+from docs.functions import get_data_yahoo
+from docs.functions import analyze_data
+from docs.functions import monte_carlo_sim
+from docs.functions import LSTM_model
+from docs.functions import trading_algo
+from docs.functions import linear_model
+from docs.functions import prop_model
 # from finta import TA
 # import ta
 # from talib import abstract
