@@ -9,3 +9,4 @@ tensorflow ==2.11.0
 ta-lib == 0.4.19
 finta ==1.3
 ta == 0.10.2
+pip ==22.3.1
