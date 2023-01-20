@@ -118,11 +118,11 @@ def prop():
     st.caption("""The values that are displayed in this dashboard are solely there for the purpose of knowledge and education. This in no
         way is financial advice, and we strongly recommend to take into account many other factors before entering a trade. With that being said,
         we hope you found this information helpful, and we wish you the best of luck on your trading endeavours!""")
-def back_testing():
+# def back_testing():
     
-    data = get_data_yahoo()
+#     data = get_data_yahoo()
 
-    trading_algo(data)
+#     trading_algo(data)
     
 def linear_reg():
     df = get_data_yahoo()
@@ -148,7 +148,7 @@ page_names_to_funcs = {
     "Monte Carlo Simulator": monsim,
     'Long Short-Term Memory Model':ML,
     'Prophet':prop,
-    'Trading Backtester':back_testing,
+    # 'Trading Backtester':back_testing,
     'Linear Regression Model':linear_reg
     
 }
