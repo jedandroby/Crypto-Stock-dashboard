@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import math
 import matplotlib
-matplotlib.use("TkAgg") 
+# matplotlib.use("TkAgg") 
 import matplotlib.pyplot as plt
 from prophet import Prophet
 from prophet.plot import plot_plotly
