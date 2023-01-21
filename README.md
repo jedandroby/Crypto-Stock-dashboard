@@ -3,10 +3,10 @@
 **Project 2 for Fintech bootcamp through UC Berkeley.**
 
 # Project Description
-We created a website that can be used to analyze various cryptocurrencies based on a USD pair. There are multiple pages on this website ranging from simple montecarlo simulations to predict price, to complex recurring neural networks, and a algorithmic trading backtester based on trading strategies.
-The website pulls in data from a yahoo api and grabs the most recent data for the token of your choice in the form of daily candles.There are multiple pages when you first go to the site. The 'Home Page', 'Monte Carlo Simulator', 'Long Short-Term Memory model','Prophet', 'Trading Backtester', 'Linear Regression Model'. Each page uses the same data and offers its own unique way to analyze market data and help make informed decisions. Feel free to reach out to the developers on the Home Page and give us your feedback for things to make better in the future!
+We created a website that can be used to analyze various cryptocurrencies based on a USD pair. There are multiple pages on this website ranging from simple montecarlo simulations to predict price, to complex recurring neural networks, and a algorithmic trading back tester based on trading strategies.
+The website pulls in data from a yahoo API and grabs the most recent data for the token of your choice in the form of daily candles. There are multiple pages when you first go to the site. The 'Home Page', 'Monte Carlo Simulator', 'Long Short-Term Memory model’, ‘Prophet', 'Trading Back tester', 'Linear Regression Model'. Each page uses the same data and offers its own unique way to analyze market data and help make informed decisions. Feel free to reach out to the developers on the Home Page and give us your feedback for things to make better in the future!
 
-Currently we are still dealing with the full streamlit deployment but everything works locally as long as you have all the correct packages installed (follow below to install packages) and then once its up and running feel free to adjust any of the parameters to your liking!  
+Currently we are still dealing with the full streamlit deployment, but everything works locally as long as you have all the correct packages installed (follow below to install packages) and then once it’s up and running feel free to adjust any of the parameters to your liking!  
 
 ---
 ## Package Requirements and versions
@@ -33,10 +33,10 @@ Then type `pip install requirements.txt`, this will install any necessary packag
 
 ---
 ## Usage -Streamlit Dashboard
-To get streamlit running locally and to start browsing the site, start by making sure your `dev` env is running and has the `requirements.txt` installed. Finally inside your preferred CLI make sure you in the right directory with the `Main.py` file, and type the following command - ` streamlit run Main.py` -. You should see the terminal run some code and a website with a local host IP address will pop up that should look similar to this -
+To get streamlit running locally and to start browsing the site, start by making sure your `dev` env is running and has the `requirements.txt` installed. Finally, inside your preferred CLI make sure you in the right directory with the `Main.py` file, and type the following command - ` streamlit run Main.py` -. You should see the terminal run some code and a website with a local host IP address will pop up that should look similar to this -
 ![dashboard](./Images/dashboard.png)
 Once you're in feel free to change the tickers and explore the dashboard and see the results! None of this is financial advice, purely just for curiosity to see what the various models think price will be at a future date and how well different strategies would do based on when you buy and sell.
-To explore the different models and pages just click the drop down in the top left like the following image shows 
+To explore the different models and pages just click the drop down in the top left like the following image shows. 
 ![lstm](./Images/LSTM.png)
 This will allow you to select any of the pages and make any adjustments you wish! 
 
