@@ -682,9 +682,11 @@ def trading_algo(data):
             def execute_trades(data, strategy,fastperiod,slowperiod,signalperiod):
                     # Initialize indicators
 
-                    macd, macd_signal, macd_hist = abstract.MACD(data['Close'], fastperiod=fastperiod, slowperiod=slowperiod, signalperiod=signalperiod)
+                    exp1 = data["Close"].ewm(fastperiod, adjust=False).mean()
+                    exp2 = data["Close"].ewm(slowperiod, adjust=False).mean()
+                    macd = exp1 - exp2                    
                     macd_df = pd.DataFrame(macd, columns=['MACD'])
-
+                    macd_signal = macd.ewm(signalperiod, adjust=False).mean()
                     # Initialize variables to keep track of trades
                     buy_indices = []
                     buy_closes = []
@@ -694,10 +696,10 @@ def trading_algo(data):
                     # Iterate through the data and execute trades
                     for i in range(1, len(data)):
                         if strategy == 'MACD':
-                            if macd[i] < macd_signal[i] and macd[i-1] > macd_signal[i-1]:
+                            if macd[i] < macd_signal[i]:
                                 buy_indices.append(i)
                                 buy_closes.append(data.loc[i, 'Close'])
-                            elif macd[i] > macd_signal[i] and macd[i-1] < macd_signal[i-1]:
+                            elif macd[i] > macd_signal[i]:
                                 sell_indices.append(i)
                                 sell_closes.append(data.loc[i, 'Close'])
 
@@ -720,8 +722,11 @@ def trading_algo(data):
                     buy_closes = []
                     sell_indices = []
                     sell_closes = []
-                    macd, macd_signal, macd_hist = abstract.MACD(data['Close'], fastperiod, slowperiod, signalperiod)
+                    exp1 = data["Close"].ewm(fastperiod, adjust=False).mean()
+                    exp2 = data['Close'].ewm(slowperiod, adjust=False).mean()
+                    macd = exp1 - exp2                    
                     macd_df = pd.DataFrame(macd, columns=['MACD'])
+                    macd_signal = macd.ewm(signalperiod, adjust=False).mean()                    
                     # Iterate through the data and execute trades
                     for i in range(1, len(data)):
                         if strategy == 'MACD':
@@ -805,6 +810,7 @@ def trading_algo(data):
                     st.subheader("Buy and Sell Signal DataFrame")
                     st.write(df2)
                     roi = round(total_revenue / -(total_cost), 2)
+                    roi = roi - 1
                     total_cost = total_cost * -1
                     st.write(f"The trading algorithm resulted in a return on investment of {round(roi, 2)}%")
                     st.write(f"The total money invested was ${round(total_cost, 2)}")
