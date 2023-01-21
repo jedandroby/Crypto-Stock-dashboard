@@ -1,4 +1,0 @@
-ccxt==2.1.48
-mpmath==1.2.1
-questionary==1.10.0
-
