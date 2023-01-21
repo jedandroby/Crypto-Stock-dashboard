@@ -54,11 +54,11 @@ def intro ():
     image = Image.open('logo.jpg')
     st.image(image, width = 750)
     st.title("Crypto App")
-    st.write('Welcome to our advanced financial platform, designed to provide you with the tools and insights you need to make informed investment decisions. Our platform combines cutting-edge predictive models, such as Monte Carlo simulations, machine learning, and algorithmic trading, with a wealth of historical market data, to provide unparalleled insights into the performance of a wide range of assets.'
-    "Our advanced models include a Monte Carlo asset predictor, a time series predictor, a backtesting feature for your trading indicators, and a logistic regression model. These tools allow you to test and optimize your investment strategies, as well as gain a deeper understanding of the underlying factors that affect asset prices."
-    "Whether you're a professional trader, a seasoned investor, or just starting out, our platform can help you make better-informed decisions. By providing you with the latest predictive tools and a wealth of historical data, our platform can give you the edge you need to succeed in today's fast-paced financial markets."
+    st.write('Welcome to our advanced financial platform, designed to provide you with the tools and insights you need to help make decisions about investment. Our platform combines various predictive models, such as Monte Carlo simulations, machine learning models, and algorithmic trading. Combined with a yahoo finance api to get a wealth of historical market data, to help provide insights into the performance of a wide range of assets.'
+    "Our models include a Monte Carlo asset predictor, a Long-Short-Term Memory neural network model, a Prophet model, a back testing feature for trading indicators, and a logistic regression model. These tools allow you to test and optimize your investment strategies, as well as gain a deeper understanding of the underlying factors that affect asset prices."
+    "Whether you're a professional trader, a seasoned investor, or just starting out, our platform can help you make better-informed decisions. You can adjust many of the variables in both the models and the back tester, so you can mess with as many variables as possible and see how the results change. Try and find the best strategy or the best inputs for the model to get a winning result."
     "Experience the difference that advanced predictive tools can make in your financial success. Sign up for our platform today and gain access to the insights and tools you need to make informed investment decisions.")
-    st.title("Pick a coin for Analisys")
+    st.title("Pick a coin for Analysis")
 
     stocks = ("BTC-USD","LINK-USD","SOL-USD","MATIC-USD","MANA-USD","DOT-USD","AVAX-USD","XLM-USD","LTC-USD","XRP-USD","BNB-USD","UNI-USD","ETH-USD","ADA-USD","USDC-USD","BAT-USD")
     dropdown = st.multiselect('Pick your coin',stocks)
@@ -77,10 +77,33 @@ def intro ():
         df = relativeret(yf.download(dropdown,start,end)['Close'])
         st.header('Return of {}' .format(dropdown))
         st.line_chart(df)
+    st.sidebar.title('Subscribe to stay updated, leave us a message!')
+    contact_form = """
+    <form action="https://formsubmit.co/kaiofadul@gmail.com" method="POST">
+     <input type="hidden" name="_captcha" value="false">
+     <input type="text" name="name" placeholder="Your name" required>
+     <input type="email" name="email" placeholder="Your email" required>
+     <textarea name="message" placeholder="Your message here"></textarea>
+     <button type="submit">Send</button>
+    </form>
+    """
+
+    st.sidebar.markdown(contact_form, unsafe_allow_html=True)
+
+    #Use Local CSS File
+    def local_css(file_name):
+        with open(file_name) as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+
+    local_css("./form/style/style.css")
 
     
 def ML ():
     st.title("LSTM (Long Short-Term Memory) Predictor")
+    st.write('''Long Short-Term Memory (LSTM) is a popular model used for time series forecasting, particularly in financial markets. It is able to handle sequential data and maintain long-term dependencies, making it well-suited for predicting future prices. However, it can be computationally intensive and difficult to interpret, and can be sensitive to the choice of hyperparameters.''')
+    
+    st.write('''This particular model has 2 hidden layers where the user decides how many neurons are being used in the first layer, and the second layer takes that number and divides it by 2. You can see from the results over time that this model uses the 'look back window' to view a subset of data and make predictions on that data. Due to this technique it puts a lot of weight on the recent data and you will notice how the predictions seem to mimic previous price trends. Definitely take any predictions this model makes with a grain of salt and use multiple models or parameters before making any financial decisions.''') 
     data = get_data_yahoo()
 
     # ask the the user to select variables for model - lookback, neruons, epochs
@@ -97,8 +120,8 @@ def ML ():
         with st.spinner('Wait for it...'):  
             st.balloons()
             LSTM_model(look_back, neurons, epoch, data, test_split)
-    
-    st.write("Disclaimer")
+            
+    st.subheader("Disclaimer")
     st.caption("""The values that are displayed in this dashboard are solely there for the purpose of knowledge and education. This in no
         way is financial advice, and we strongly recommend to take into account many other factors before entering a trade. With that being said,
         we hope you found this information helpful, and we wish you the best of luck on your trading endeavours!""")
@@ -107,6 +130,13 @@ def ML ():
 def prop():
 # Forecasting
     st.title("Prophet Asset Predictor")
+    st.subheader('Explaining the Model')
+    st.write('Prophet is a time series forecasting model. The model uses time series'
+    ' model with three main components; trends, seasonalities and holidays. The model also'
+    ' handles daily,weekly and yearly seasonality. We advise you to not take into full consideration'
+    ' the prices of the coin. But the most interesting thing about Prophet is how the model'
+    ' can capture componenets of the forecast. With that you can make observations based on how the coin'
+    ' behaves at certain points of the week and the year.')
     data = get_data_yahoo()
     
     st.sidebar.title('How many days do you want to predict?')
