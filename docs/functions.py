@@ -648,123 +648,123 @@ def trading_algo(data):
             # code to run after submit button is clicked
             # plotting(strategy,rsi_low,rsi_high,fastperiod,slowperiod,signalperiod)
             execute_trades(data,strategy,fastperiod,slowperiod,signalperiod)  
-        def stats(strategy):
-            if strategy == "MACD":
+            def stats(strategy):
+                if strategy == "MACD":
 
-                def backtest_MACD(data, share_size,fastperiod, slowperiod, signalperiod):
-                    # initial_capital = int(initial_capital)
-                    share_size = int(share_size)
-                    # Initialize variables to keep track of trades
-                    buy_indices = []
-                    buy_closes = []
-                    sell_indices = []
-                    sell_closes = []
-                    exp1 = data["Close"].ewm(fastperiod, adjust=False).mean()
-                    exp2 = data['Close'].ewm(slowperiod, adjust=False).mean()
-                    macd = exp1 - exp2
-                    macd_df = pd.DataFrame(macd, columns=['MACD'])
-                    macd_signal = macd.ewm(signalperiod, adjust=False).mean()
-                    # Iterate through the data and execute trades
-                    for i in range(1, len(data)):
-                        if strategy == 'MACD':
-                            if macd[i] < macd_signal[i]:
-                                buy_indices.append(data.loc[i, 'Date'])
-                                buy_closes.append(data.loc[i, 'Close'])
-                            elif macd[i] > macd_signal[i]:
-                                sell_indices.append(data.loc[i, 'Date'])
-                                sell_closes.append(data.loc[i, 'Close'])
-                    # create signals dataframe
-                    signals_df = data.loc[:,["Close"]]
-                    signals_df['Signal'] = 0.0
-                    signals_df['Trade Type'] = np.nan
-                    signals_df['Total Cost'] = 0.0
-                    signals_df['Total Revenue'] = 0.0
-                    signals_df['Net Profit/Loss'] = 0.0
+                    def backtest_MACD(data, share_size,fastperiod, slowperiod, signalperiod):
+                        # initial_capital = int(initial_capital)
+                        share_size = int(share_size)
+                        # Initialize variables to keep track of trades
+                        buy_indices = []
+                        buy_closes = []
+                        sell_indices = []
+                        sell_closes = []
+                        exp1 = data["Close"].ewm(fastperiod, adjust=False).mean()
+                        exp2 = data['Close'].ewm(slowperiod, adjust=False).mean()
+                        macd = exp1 - exp2
+                        macd_df = pd.DataFrame(macd, columns=['MACD'])
+                        macd_signal = macd.ewm(signalperiod, adjust=False).mean()
+                        # Iterate through the data and execute trades
+                        for i in range(1, len(data)):
+                            if strategy == 'MACD':
+                                if macd[i] < macd_signal[i]:
+                                    buy_indices.append(data.loc[i, 'Date'])
+                                    buy_closes.append(data.loc[i, 'Close'])
+                                elif macd[i] > macd_signal[i]:
+                                    sell_indices.append(data.loc[i, 'Date'])
+                                    sell_closes.append(data.loc[i, 'Close'])
+                        # create signals dataframe
+                        signals_df = data.loc[:,["Close"]]
+                        signals_df['Signal'] = 0.0
+                        signals_df['Trade Type'] = np.nan
+                        signals_df['Total Cost'] = 0.0
+                        signals_df['Total Revenue'] = 0.0
+                        signals_df['Net Profit/Loss'] = 0.0
 
-                    # initialize previous price
-                    previous_price = 0
-                    # initialize share size and accumulated shares
-                    accumulated_shares = 0
-                    invested_capital = 0
-                    roi = 0
+                        # initialize previous price
+                        previous_price = 0
+                        # initialize share size and accumulated shares
+                        accumulated_shares = 0
+                        invested_capital = 0
+                        roi = 0
 
-                    buy_indices = pd.Series(buy_indices)
-                    buy_closes = pd.Series(buy_closes)
-                    sell_indices = pd.Series(sell_indices)
-                    sell_closes = pd.Series(sell_closes)
+                        buy_indices = pd.Series(buy_indices)
+                        buy_closes = pd.Series(buy_closes)
+                        sell_indices = pd.Series(sell_indices)
+                        sell_closes = pd.Series(sell_closes)
 
-                    buy_df = pd.DataFrame(buy_closes)
-                    buy_df.index = buy_indices
+                        buy_df = pd.DataFrame(buy_closes)
+                        buy_df.index = buy_indices
 
-                    sell_df=pd.DataFrame(sell_closes)
-                    sell_df.index= sell_indices
+                        sell_df=pd.DataFrame(sell_closes)
+                        sell_df.index= sell_indices
 
-                    df1 = pd.concat([buy_df, sell_df], axis=1, keys=['buy', 'sell'])
-                    df2 = pd.DataFrame()
-                    prev_signal = None
-                    flag = None
-                    # iterate through the rows of the dataframe
-                    for i, row in df1.iterrows():
-                        if flag == 'buy':
-                            if row['sell'].notna().any():
-                                df2 = df2.append({'Date': i, 'Signal': 'Sell', 'Price': row['sell'].values}, ignore_index=True)
-                                flag = 'sell'
-                        else:
-                            if row['buy'].notna().any():
-                                df2 = df2.append({'Date': i, 'Signal': 'Buy', 'Price': row['buy'].values}, ignore_index=True)
-                                flag = 'buy'
+                        df1 = pd.concat([buy_df, sell_df], axis=1, keys=['buy', 'sell'])
+                        df2 = pd.DataFrame()
+                        prev_signal = None
+                        flag = None
+                        # iterate through the rows of the dataframe
+                        for i, row in df1.iterrows():
+                            if flag == 'buy':
+                                if row['sell'].notna().any():
+                                    df2 = df2.append({'Date': i, 'Signal': 'Sell', 'Price': row['sell'].values}, ignore_index=True)
+                                    flag = 'sell'
+                            else:
+                                if row['buy'].notna().any():
+                                    df2 = df2.append({'Date': i, 'Signal': 'Buy', 'Price': row['buy'].values}, ignore_index=True)
+                                    flag = 'buy'
 
-                    def convert_to_float(x):
-                        return round(float(x), 2)
-                    df2['Price'] = df2['Price'].apply(convert_to_float)
-                    df2['Total Cost'] = 0.0
-                    df2['Total Revenue'] = 0.0
-                    # initial_capital = int(initial_capital)
-                    share_size = int(share_size)
+                        def convert_to_float(x):
+                            return round(float(x), 2)
+                        df2['Price'] = df2['Price'].apply(convert_to_float)
+                        df2['Total Cost'] = 0.0
+                        df2['Total Revenue'] = 0.0
+                        # initial_capital = int(initial_capital)
+                        share_size = int(share_size)
 
-                    for i in range(0, len(df2)):
-                        # buy if RSI < 30
-                        if df2.loc[i, 'Signal'] == 'Buy': 
-                            # Buy condition
-                            # calculate the cost of the trade
-                            cost = -(df2.loc[i, 'Price'] * share_size)
-                            df2.loc[i, 'Total Cost'] += cost
-                            # add the number of shares purchased to the accumulated shares
-                            # accumulated_shares += share_size
+                        for i in range(0, len(df2)):
+                            # buy if RSI < 30
+                            if df2.loc[i, 'Signal'] == 'Buy': 
+                                # Buy condition
+                                # calculate the cost of the trade
+                                cost = -(df2.loc[i, 'Price'] * share_size)
+                                df2.loc[i, 'Total Cost'] += cost
+                                # add the number of shares purchased to the accumulated shares
+                                # accumulated_shares += share_size
 
-                        # sell if RSI > 70
-                        elif df2.loc[i, 'Signal'] == 'Sell': 
-                            # Sell condition
-                            # calculate the proceeds of the trade
-                            revenue = (df2.loc[i, 'Price'] * share_size)
-                            df2.loc[i, 'Total Revenue'] += revenue                   
-                            # no signal if RSI between 30 and 70
-                        else:
-                            skip
-                    st.subheader("Trading Algorithm Results")        
-                    total_revenue = df2['Total Revenue'].sum()
-                    total_cost = df2['Total Cost'].sum()
-                    st.subheader("Buy and Sell Signal DataFrame")
-                    st.write(df2)
-                    roi = round(total_revenue / -(total_cost), 2)
-                    total_cost = total_cost * -1
-                    st.write(f"The trading algorithm resulted in a return on investment of {round(roi, 2)}%")
-                    st.write(f"The total money invested was ${round(total_cost, 2)}")
-                    st.write(f"The total Revenue generated was ${round(total_revenue, 2)}")
-                    usd_val = total_revenue - total_cost
-                    st.write(f"""The total amount in USD that you would have made while trading this 
-                    strategy would have been: ${round(usd_val, 2)}""")
-                    st.caption('''Please note that this trading algorithm is a generic strategy 
-                    using pre-set conditions and is intended for educational purposes only. In 
-                    order to achieve a higher return on investment, it is recommended to tweak 
-                    the conditions and customize the strategy to suit your needs. Keep in mind 
-                    that past performance is not indicative of future results and this is not 
-                    financial advice. But with our subscription model, we will work together to 
-                    further amplify the strategy and create even greater returns on investment!''')
-                backtest_MACD(data, share_size,fastperiod, slowperiod, signalperiod)
+                            # sell if RSI > 70
+                            elif df2.loc[i, 'Signal'] == 'Sell': 
+                                # Sell condition
+                                # calculate the proceeds of the trade
+                                revenue = (df2.loc[i, 'Price'] * share_size)
+                                df2.loc[i, 'Total Revenue'] += revenue                   
+                                # no signal if RSI between 30 and 70
+                            else:
+                                skip
+                        st.subheader("Trading Algorithm Results")        
+                        total_revenue = df2['Total Revenue'].sum()
+                        total_cost = df2['Total Cost'].sum()
+                        st.subheader("Buy and Sell Signal DataFrame")
+                        st.write(df2)
+                        roi = round(total_revenue / -(total_cost), 2)
+                        total_cost = total_cost * -1
+                        st.write(f"The trading algorithm resulted in a return on investment of {round(roi, 2)}%")
+                        st.write(f"The total money invested was ${round(total_cost, 2)}")
+                        st.write(f"The total Revenue generated was ${round(total_revenue, 2)}")
+                        usd_val = total_revenue - total_cost
+                        st.write(f"""The total amount in USD that you would have made while trading this 
+                        strategy would have been: ${round(usd_val, 2)}""")
+                        st.caption('''Please note that this trading algorithm is a generic strategy 
+                        using pre-set conditions and is intended for educational purposes only. In 
+                        order to achieve a higher return on investment, it is recommended to tweak 
+                        the conditions and customize the strategy to suit your needs. Keep in mind 
+                        that past performance is not indicative of future results and this is not 
+                        financial advice. But with our subscription model, we will work together to 
+                        further amplify the strategy and create even greater returns on investment!''')
+                    backtest_MACD(data, share_size,fastperiod, slowperiod, signalperiod)
 
 
-        stats(strategy)
+            stats(strategy)
 
         
 def linear_model(df):
