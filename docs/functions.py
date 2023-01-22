@@ -16,8 +16,6 @@ from keras.layers import LSTM
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from finta import TA
-import ta
-from talib import abstract
 from sklearn.linear_model import LinearRegression
 
 # def get_data_crypto():
@@ -414,20 +412,7 @@ def trading_algo(data):
     # Space out the maps so the first one is 2x the size of the other three
     # col1, col2 = st.columns(2)
     # with col1:
-
-
-    st.header("Trading Algorithm Automatic Backtester")
-    st.write("""Welcome to the Automatic Trading Algorithm Backtester! 
-    Say goodbye to manual backtesting and hello to efficient and accurate results.
-    With our cutting-edge technology, you can easily test and optimize your trading 
-    strategies, all with just a few clicks. Whether you're a seasoned trader or just starting out, 
-    our backtester is the perfect tool to help you make informed decisions and maximize your returns. 
-    Get ready to revolutionize the way you trade and experience the power of automated backtesting. Join 
-    us now and start seeing the results you've always wanted!""")
-    
-    def plotting(strategy,rsi_low,rsi_high,fastperiod,slowperiod,signalperiod):
-        if strategy == "RSI":
-            def execute_trade(data, strategy,rsi_low,rsi_high):
+    def execute_trade(data, strategy,rsi_low,rsi_high):
                 # Initialize indicators
                 rsi = TA.RSI(data)
 
@@ -457,14 +442,14 @@ def trading_algo(data):
                 plt.legend()
                 plt.title('RSI Strategy')
                 st.pyplot()
-
-            execute_trade(data,selected_strategy)
-        else:
-            def execute_trades(data, strategy,fastperiod,slowperiod,signalperiod):
+    def execute_trades(data, strategy,fastperiod,slowperiod,signalperiod):
                 # Initialize indicators
 
-                macd, macd_signal, macd_hist = abstract.MACD(data['Close'], fastperiod=fastperiod, slowperiod=slowperiod, signalperiod=signalperiod)
+                exp1 = data["Close"].ewm(fastperiod, adjust=False).mean()
+                exp2 = data['Close'].ewm(slowperiod, adjust=False).mean()
+                macd = exp1 - exp2
                 macd_df = pd.DataFrame(macd, columns=['MACD'])
+                macd_signal = macd.ewm(signalperiod, adjust=False).mean()
 
                 # Initialize variables to keep track of trades
                 buy_indices = []
@@ -489,6 +474,19 @@ def trading_algo(data):
                 plt.legend()
                 plt.title('MACD Strategy')
                 st.pyplot()
+    st.header("Trading Algorithm Automatic Backtester")
+    st.write("""Welcome to the Automatic Trading Algorithm Backtester! 
+    Say goodbye to manual backtesting and hello to efficient and accurate results.
+    With our cutting-edge technology, you can easily test and optimize your trading 
+    strategies, all with just a few clicks. Whether you're a seasoned trader or just starting out, 
+    our backtester is the perfect tool to help you make informed decisions and maximize your returns. 
+    Get ready to revolutionize the way you trade and experience the power of automated backtesting. Join 
+    us now and start seeing the results you've always wanted!""")
+    
+    def plotting(strategy,rsi_low,rsi_high,fastperiod,slowperiod,signalperiod):
+        if strategy == "RSI":
+            execute_trade(data,selected_strategy, rsi_low,rsi_high)
+        else:            
             execute_trades(data,strategy,fastperiod,slowperiod,signalperiod)   
 
     # with col2:
@@ -513,36 +511,6 @@ def trading_algo(data):
         if st.sidebar.button("Start"):
             st.snow()
             # code to run after submit button is clicked
-            def execute_trade(data, strategy,rsi_low,rsi_high):
-                # Initialize indicators
-                rsi = TA.RSI(data)
-
-
-                # Initialize variables to keep track of trades
-                buy_indices = []
-                buy_closes = []
-                sell_indices = []
-                sell_closes = []
-
-                # Iterate through the data and execute trades
-                for i in range(1, len(data)):
-                    # RSI strategy
-                    if strategy == 'RSI':
-                        if rsi[i] < rsi_low:
-                            buy_indices.append(i)
-                            buy_closes.append(data.loc[i, 'Close'])
-                        elif rsi[i] > rsi_high:
-                            sell_indices.append(i)
-                            sell_closes.append(data.loc[i, 'Close'])
-                            # Plot RSI buys and sells 
-                plt.plot(data['Close'], '-', label='Close Price')
-                # plt.plot(rsi, '-', label='RSI')
-                plt.scatter(buy_indices, buy_closes, color='green', marker='^', label='Buy')
-                plt.scatter(sell_indices, sell_closes, color='red', marker='v', label='Sell')
-                plt.legend()
-                plt.title('RSI Strategy')
-                st.pyplot()
-
             execute_trade(data,selected_strategy,rsi_low,rsi_high)
             def stats(strategy):
 
@@ -679,35 +647,6 @@ def trading_algo(data):
             st.snow()
             # code to run after submit button is clicked
             # plotting(strategy,rsi_low,rsi_high,fastperiod,slowperiod,signalperiod)
-            def execute_trades(data, strategy,fastperiod,slowperiod,signalperiod):
-                    # Initialize indicators
-
-                    macd, macd_signal, macd_hist = abstract.MACD(data['Close'], fastperiod=fastperiod, slowperiod=slowperiod, signalperiod=signalperiod)
-                    macd_df = pd.DataFrame(macd, columns=['MACD'])
-
-                    # Initialize variables to keep track of trades
-                    buy_indices = []
-                    buy_closes = []
-                    sell_indices = []
-                    sell_closes = []
-
-                    # Iterate through the data and execute trades
-                    for i in range(1, len(data)):
-                        if strategy == 'MACD':
-                            if macd[i] < macd_signal[i] and macd[i-1] > macd_signal[i-1]:
-                                buy_indices.append(i)
-                                buy_closes.append(data.loc[i, 'Close'])
-                            elif macd[i] > macd_signal[i] and macd[i-1] < macd_signal[i-1]:
-                                sell_indices.append(i)
-                                sell_closes.append(data.loc[i, 'Close'])
-
-                    # Plot MACD buys and sells
-                    plt.plot(data['Close'], '-', label='Close Price')
-                    plt.scatter(buy_indices, buy_closes, color='green', marker='^', label='Buy')
-                    plt.scatter(sell_indices, sell_closes, color='red', marker='v', label='Sell')
-                    plt.legend()
-                    plt.title('MACD Strategy')
-                    st.pyplot()
             execute_trades(data,strategy,fastperiod,slowperiod,signalperiod)  
         def stats(strategy):
             if strategy == "MACD":
@@ -720,8 +659,11 @@ def trading_algo(data):
                     buy_closes = []
                     sell_indices = []
                     sell_closes = []
-                    macd, macd_signal, macd_hist = abstract.MACD(data['Close'], fastperiod, slowperiod, signalperiod)
+                    exp1 = data["Close"].ewm(fastperiod, adjust=False).mean()
+                    exp2 = data['Close'].ewm(slowperiod, adjust=False).mean()
+                    macd = exp1 - exp2
                     macd_df = pd.DataFrame(macd, columns=['MACD'])
+                    macd_signal = macd.ewm(signalperiod, adjust=False).mean()
                     # Iterate through the data and execute trades
                     for i in range(1, len(data)):
                         if strategy == 'MACD':

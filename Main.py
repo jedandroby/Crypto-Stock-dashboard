@@ -28,8 +28,6 @@ from docs.functions import trading_algo
 from docs.functions import linear_model
 from docs.functions import prop_model
 from finta import TA
-import ta
-from talib import abstract
 
 # Use the full page instead of a narrow central column
 # st.set_page_config(layout="wide")
