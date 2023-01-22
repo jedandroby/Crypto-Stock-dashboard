@@ -6,7 +6,7 @@
 We created a website that can be used to analyze various cryptocurrencies based on a USD pair. There are multiple pages on this website ranging from simple montecarlo simulations to predict price, to complex recurring neural networks, and a algorithmic trading back tester based on trading strategies.
 The website pulls in data from a yahoo API and grabs the most recent data for the token of your choice in the form of daily candles. There are multiple pages when you first go to the site. The 'Home Page', 'Monte Carlo Simulator', 'Long Short-Term Memory model’, ‘Prophet', 'Trading Back tester', 'Linear Regression Model'. Each page uses the same data and offers its own unique way to analyze market data and help make informed decisions. Feel free to reach out to the developers on the Home Page and give us your feedback for things to make better in the future!
 
-This app is currently deployed using streamlit and is live running right [here!](https://jedandroby-crypto-stock-dashboard-main-wj0sx8.streamlit.app/) Feel free to click the link and enjoy our website! follow along below if you want to learn how to run it locally to make any changes to edits to fit your preference.  
+This app is currently deployed using streamlit and is live running right [here!](https://jedandroby-crypto-stock-dashboard-main-wj0sx8.streamlit.app/) Feel free to click the link and enjoy our website! For some reason on the trading backtester the code seems to have an issue running with BTC data. Every other token works though, we are working on fixing this. Follow along below if you want to learn how to run it locally where it can pull in BTC data no problem, to make any changes to edits to fit your preference.  
 
 ---
 ## Package Requirements and versions
